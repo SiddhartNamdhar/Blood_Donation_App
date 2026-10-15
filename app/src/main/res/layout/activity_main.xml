@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <!-- Camp Banner ImageView -->
+    <ImageView
+        android:id="@+id/imgCampBanner"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_camp_banner"
+        android:contentDescription="@string/camp_banner_description"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="#FFEBEE" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <EditText
+            android:id="@+id/etDonorId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/donor_id_hint"
+            android:inputType="number"
+            android:importantForAutofill="no"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/etDonorName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/donor_name_hint"
+            android:inputType="textPersonName"
+            android:autofillHints="name"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/etDonorAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/donor_age_hint"
+            android:inputType="number"
+            android:importantForAutofill="no"
+            android:minHeight="48dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/blood_group_label"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
+
+            <Spinner
+                android:id="@+id/spBloodGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:minHeight="48dp" />
+        </LinearLayout>
+
+        <!-- Buttons Row -->
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnAdd"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/button_add"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btnEdit"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/button_edit"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/button_delete" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/registered_donors_title"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="#F5F5F5" />
+
+    <!-- Donors ListView -->
+    <ListView
+        android:id="@+id/lvDonors"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#E0E0E0"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>

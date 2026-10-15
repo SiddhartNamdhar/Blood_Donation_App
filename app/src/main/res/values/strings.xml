@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Blood Bank</string>
+    <string name="camp_banner_description">Camp Banner</string>
+    <string name="donor_id_hint">Donor ID</string>
+    <string name="donor_name_hint">Donor Name</string>
+    <string name="donor_age_hint">Age</string>
+    <string name="blood_group_label">Blood Group: </string>
+    <string name="button_add">Add</string>
+    <string name="button_edit">Edit</string>
+    <string name="button_delete">Delete</string>
+    <string name="registered_donors_title">Registered Donors:</string>
+    <string name="menu_save_to_txt">Save to TXT</string>
+    <string name="menu_read_txt">Read TXT</string>
+    <string name="menu_save_to_csv">Save to CSV</string>
+    <string name="menu_read_csv">Read CSV</string>
+    <string name="menu_delete_files">Delete Files</string>
+    <string name="donor_icon_description">Donor Icon</string>
+    <string name="donor_details_placeholder">Age | Blood Group</string>
+</resources>
