@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CalendarView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +27,25 @@ public class DonorActivity extends AppCompatActivity {
         if (toolbarDonor.getOverflowIcon() != null) {
             toolbarDonor.getOverflowIcon().setTint(Color.WHITE);
         }
+
+        // Display actual Donor Name in welcome message
+        TextView tvDonorWelcome = findViewById(R.id.tvDonorWelcome);
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String name = prefs.getString("name", "Valued Donor");
+        tvDonorWelcome.setText(getString(R.string.donor_welcome_formatted, name));
+
+        // CalendarView for Donation Camp Schedule
+        CalendarView calendarViewCamps = findViewById(R.id.calendarViewCamps);
+        TextView tvCampScheduleInfo = findViewById(R.id.tvCampScheduleInfo);
+
+        calendarViewCamps.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            String dateStr = dayOfMonth + "/" + (month + 1) + "/" + year;
+            if (dayOfMonth % 2 == 0) {
+                tvCampScheduleInfo.setText(getString(R.string.camp_date_active, dateStr));
+            } else {
+                tvCampScheduleInfo.setText(getString(R.string.camp_date_drive, dateStr));
+            }
+        });
     }
 
     private void showProfileDialog() {
