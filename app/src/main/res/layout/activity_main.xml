@@ -1,133 +1,262 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fitsSystemWindows="true">
-
-    <!-- Camp Banner ImageView -->
-    <ImageView
-        android:id="@+id/imgCampBanner"
-        android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_camp_banner"
-        android:contentDescription="@string/camp_banner_description"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="#FFEBEE" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/etDonorId"
+        <!-- MaterialToolbar & AppBarLayout -->
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/pastel_red"
+                app:title="@string/toolbar_title"
+                app:titleTextColor="@android:color/white"
+                app:subtitleTextColor="@android:color/white"
+                app:navigationIconTint="@android:color/white" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <!-- Camp Banner ImageView -->
+        <ImageView
+            android:id="@+id/imgCampBanner"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_camp_banner"
+            android:contentDescription="@string/camp_banner_description"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="#FFEBEE" />
+
+        <!-- Form MaterialCardView -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/donor_id_hint"
-            android:inputType="number"
-            android:importantForAutofill="no"
-            android:minHeight="48dp" />
+            android:layout_margin="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#E0E0E0">
 
-        <EditText
-            android:id="@+id/etDonorName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/donor_name_hint"
-            android:inputType="textPersonName"
-            android:autofillHints="name"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/etDonorAge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/donor_age_hint"
-            android:inputType="number"
-            android:importantForAutofill="no"
-            android:minHeight="48dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/blood_group_label"
-                android:textSize="16sp"
-                android:textColor="@android:color/black" />
-
-            <Spinner
-                android:id="@+id/spBloodGroup"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:minHeight="48dp" />
-        </LinearLayout>
+                android:orientation="vertical"
+                android:padding="12dp">
 
-        <!-- Buttons Row -->
-        <LinearLayout
-            style="?android:attr/buttonBarStyle"
+                <EditText
+                    android:id="@+id/etDonorId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/donor_id_hint"
+                    android:inputType="number"
+                    android:importantForAutofill="no"
+                    android:minHeight="48dp" />
+
+                <EditText
+                    android:id="@+id/etDonorName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/donor_name_hint"
+                    android:inputType="textPersonName"
+                    android:autofillHints="name"
+                    android:minHeight="48dp" />
+
+                <EditText
+                    android:id="@+id/etDonorAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/donor_age_hint"
+                    android:inputType="number"
+                    android:importantForAutofill="no"
+                    android:minHeight="48dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/blood_group_label"
+                        android:textSize="16sp"
+                        android:textColor="@android:color/black" />
+
+                    <Spinner
+                        android:id="@+id/spBloodGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:importantForAutofill="no"
+                        android:minHeight="48dp" />
+                </LinearLayout>
+
+                <!-- MaterialButtons Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdd"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/button_add"
+                        android:layout_marginEnd="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEdit"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/button_edit"
+                        android:layout_marginEnd="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDelete"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/button_delete" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Filter Title & ChipGroup -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:text="@string/registered_donors_title"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp" />
 
-            <Button
-                android:id="@+id/btnAdd"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/button_add"
-                android:layout_marginEnd="4dp" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
-            <Button
-                android:id="@+id/btnEdit"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupFilter"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/button_edit"
-                android:layout_marginEnd="4dp" />
+                app:singleSelection="true"
+                app:selectionRequired="true">
 
-            <Button
-                android:id="@+id/btnDelete"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/button_delete" />
-        </LinearLayout>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/filter_all"
+                    android:checked="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAPos"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_a_pos" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipANeg"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_a_neg" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBPos"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_b_pos" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBNeg"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_b_neg" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipOPos"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_o_pos" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipONeg"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_o_neg" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipABPos"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_ab_pos" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipABNeg"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bg_ab_neg" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </HorizontalScrollView>
+
+        <!-- Donors ListView -->
+        <ListView
+            android:id="@+id/lvDonors"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@null"
+            android:dividerHeight="0dp" />
+
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <!-- FloatingActionButton -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabClearForm"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/registered_donors_title"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:background="#F5F5F5" />
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_clear"
+        android:contentDescription="@string/fab_clear_form"
+        app:tint="@android:color/white" />
 
-    <!-- Donors ListView -->
-    <ListView
-        android:id="@+id/lvDonors"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="#E0E0E0"
-        android:dividerHeight="1dp" />
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

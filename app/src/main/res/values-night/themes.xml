@@ -1,7 +1,23 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.BloodBank" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:windowBackground">#FAFAFA</item>
+        <item name="materialAlertDialogTheme">@style/MaterialDialogCardTheme</item>
+    </style>
+
+    <style name="Theme.BloodBank" parent="Base.Theme.BloodBank" />
+
+    <!-- Theme for SplashActivity -->
+    <style name="Theme.BloodBank.Splash" parent="Theme.BloodBank">
+        <item name="android:windowBackground">#FFF5F5</item>
+    </style>
+
+    <!-- Modern Floating Card Style for Dialogs -->
+    <style name="MaterialDialogCardTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/DialogCardShape</item>
+    </style>
+
+    <style name="DialogCardShape" parent="">
+        <item name="cornerSize">20dp</item>
     </style>
 </resources>

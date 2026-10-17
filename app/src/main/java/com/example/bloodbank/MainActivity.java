@@ -1,8 +1,10 @@
 package com.example.bloodbank;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,24 +17,22 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "MainActivity";
 
     private ImageView imgCampBanner;
     private EditText etDonorId, etDonorName, etDonorAge;
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private final ArrayList<String> bloodGroupList = new ArrayList<>();
 
     private final String[] bloodGroups = {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"};
+    private String selectedFilterBloodGroup = "All";
 
     private ActivityResultLauncher<String> galleryLauncher;
     private ActivityResultLauncher<Void> cameraLauncher;
@@ -55,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Setup MaterialToolbar & ActionBar
+        MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
+        setSupportActionBar(topAppBar);
+        if (topAppBar.getOverflowIcon() != null) {
+            topAppBar.getOverflowIcon().setTint(Color.WHITE);
+        }
 
         // Register ActivityResultLaunchers for Gallery and Camera
         galleryLauncher = registerForActivityResult(
@@ -85,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnEdit = findViewById(R.id.btnEdit);
         Button btnDelete = findViewById(R.id.btnDelete);
         lvDonors = findViewById(R.id.lvDonors);
+        ChipGroup chipGroupFilter = findViewById(R.id.chipGroupFilter);
+        FloatingActionButton fabClearForm = findViewById(R.id.fabClearForm);
 
         // Initialize DBHelper
         dbHelper = new DBHelper(this);
@@ -96,6 +106,28 @@ public class MainActivity extends AppCompatActivity {
 
         // Camp Banner Popup Menu
         imgCampBanner.setOnClickListener(this::showBannerPopupMenu);
+
+        // Setup FloatingActionButton to clear form
+        fabClearForm.setOnClickListener(v -> {
+            clearForm();
+            showSnackbar("Form cleared");
+        });
+
+        // Setup ChipGroup Blood Group Filter
+        chipGroupFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) {
+                selectedFilterBloodGroup = "All";
+            } else {
+                int checkedId = checkedIds.get(0);
+                Chip chip = findViewById(checkedId);
+                if (chip != null) {
+                    selectedFilterBloodGroup = chip.getText().toString();
+                } else {
+                    selectedFilterBloodGroup = "All";
+                }
+            }
+            refreshList();
+        });
 
         // Load Donors
         refreshList();
@@ -127,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             String bloodGroup = spBloodGroup.getSelectedItem().toString();
 
             if (idStr.isEmpty() || name.isEmpty() || ageStr.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                showSnackbar("Please fill all fields");
                 return;
             }
 
@@ -136,11 +168,11 @@ public class MainActivity extends AppCompatActivity {
 
             boolean success = dbHelper.insertDonor(donorId, name, age, bloodGroup);
             if (success) {
-                Toast.makeText(MainActivity.this, "Donor added successfully", Toast.LENGTH_SHORT).show();
+                showSnackbar("Donor added successfully");
                 refreshList();
                 clearForm();
             } else {
-                Toast.makeText(MainActivity.this, "Error adding donor (ID may already exist)", Toast.LENGTH_SHORT).show();
+                showSnackbar("Error adding donor (ID may already exist)");
             }
         });
 
@@ -152,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             String bloodGroup = spBloodGroup.getSelectedItem().toString();
 
             if (idStr.isEmpty() || name.isEmpty() || ageStr.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                showSnackbar("Please fill all fields");
                 return;
             }
 
@@ -161,23 +193,30 @@ public class MainActivity extends AppCompatActivity {
 
             boolean success = dbHelper.updateDonor(donorId, name, age, bloodGroup);
             if (success) {
-                Toast.makeText(MainActivity.this, "Donor updated successfully", Toast.LENGTH_SHORT).show();
+                showSnackbar("Donor updated successfully");
                 refreshList();
             } else {
-                Toast.makeText(MainActivity.this, "Donor ID not found for update", Toast.LENGTH_SHORT).show();
+                showSnackbar("Donor ID not found for update");
             }
         });
 
-        // Delete Button (asks confirmation in AlertDialog)
+        // Delete Button (asks confirmation in MaterialAlertDialog)
         btnDelete.setOnClickListener(v -> {
             String idStr = etDonorId.getText().toString().trim();
             if (idStr.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please enter or select a Donor ID to delete", Toast.LENGTH_SHORT).show();
+                showSnackbar("Please enter or select a Donor ID to delete");
                 return;
             }
             int donorId = Integer.parseInt(idStr);
             showDeleteConfirmationDialog(donorId);
         });
+    }
+
+    private void showSnackbar(String message) {
+        View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+        if (coordinatorLayout != null) {
+            Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     private void refreshList() {
@@ -189,10 +228,13 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = dbHelper.getAllDonors();
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                idList.add(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
-                nameList.add(cursor.getString(cursor.getColumnIndexOrThrow("name")));
-                ageList.add(cursor.getInt(cursor.getColumnIndexOrThrow("age")));
-                bloodGroupList.add(cursor.getString(cursor.getColumnIndexOrThrow("bloodGroup")));
+                String bloodGroup = cursor.getString(cursor.getColumnIndexOrThrow("bloodGroup"));
+                if ("All".equalsIgnoreCase(selectedFilterBloodGroup) || bloodGroup.equalsIgnoreCase(selectedFilterBloodGroup)) {
+                    idList.add(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                    nameList.add(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+                    ageList.add(cursor.getInt(cursor.getColumnIndexOrThrow("age")));
+                    bloodGroupList.add(bloodGroup);
+                }
             }
             cursor.close();
         }
@@ -209,20 +251,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDeleteConfirmationDialog(int donorId) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Confirm Delete")
                 .setMessage("Are you sure you want to delete donor with ID " + donorId + "?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     boolean success = dbHelper.deleteDonor(donorId);
                     if (success) {
-                        Toast.makeText(MainActivity.this, "Donor deleted successfully", Toast.LENGTH_SHORT).show();
+                        showSnackbar("Donor deleted successfully");
                         refreshList();
                         clearForm();
                     } else {
-                        Toast.makeText(MainActivity.this, "Donor ID not found", Toast.LENGTH_SHORT).show();
+                        showSnackbar("Donor ID not found");
                     }
                 })
                 .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void showProfileDialog() {
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String name = prefs.getString("name", "Staff Member");
+        String email = prefs.getString("email", "staff@bloodbank.org");
+        String org = prefs.getString("org", "Blood Bank Staff");
+        String gender = prefs.getString("gender", "N/A");
+        String mobile = prefs.getString("mobile", "N/A");
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Staff Profile")
+                .setMessage("Name: " + name + "\nEmail: " + email + "\nOrganisation: " + org + "\nGender: " + gender + "\nMobile: " + mobile)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void showLogoutDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                    prefs.edit().clear().apply();
+                    Intent intent = new Intent(MainActivity.this, OnboardingActivity.class);
+                    startActivity(intent);
+                    finishAffinity();
+                })
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -287,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case 3: // Details
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle("Donor Details")
                         .setMessage("ID: " + donorId + "\nName: " + name + "\nAge: " + age + "\nBlood Group: " + bloodGroup)
                         .setPositiveButton("OK", null)
@@ -307,172 +379,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.menu_save_txt) {
-            saveToTxt();
+        if (id == R.id.menu_profile) {
+            showProfileDialog();
             return true;
-        } else if (id == R.id.menu_read_txt) {
-            readTxt();
-            return true;
-        } else if (id == R.id.menu_save_csv) {
-            saveToCsv();
-            return true;
-        } else if (id == R.id.menu_read_csv) {
-            readCsv();
-            return true;
-        } else if (id == R.id.menu_delete_files) {
-            deleteFiles();
+        } else if (id == R.id.menu_logout) {
+            showLogoutDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void saveToTxt() {
-        String idStr = etDonorId.getText().toString().trim();
-        String name = etDonorName.getText().toString().trim();
-        String ageStr = etDonorAge.getText().toString().trim();
-        String bloodGroup = spBloodGroup.getSelectedItem() != null ? spBloodGroup.getSelectedItem().toString() : "";
-
-        if (idStr.isEmpty() || name.isEmpty() || ageStr.isEmpty()) {
-            Toast.makeText(this, "Please enter donor details in the form first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            File file = new File(getFilesDir(), "donors.txt");
-            FileWriter writer = new FileWriter(file, true);
-            writer.append(idStr).append(", ").append(name).append(", ").append(ageStr).append(", ").append(bloodGroup).append("\n");
-            writer.flush();
-            writer.close();
-            Toast.makeText(this, "Saved to donors.txt", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Log.e(TAG, "Error saving donor data to TXT file", e);
-            Toast.makeText(this, "Error saving to TXT", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void readTxt() {
-        File file = new File(getFilesDir(), "donors.txt");
-        if (!file.exists()) {
-            Toast.makeText(this, "donors.txt does not exist", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading donor data from TXT file", e);
-            Toast.makeText(this, "Error reading TXT file", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String content = sb.length() > 0 ? sb.toString() : "File is empty";
-        new AlertDialog.Builder(this)
-                .setTitle("donors.txt Contents")
-                .setMessage(content)
-                .setPositiveButton("OK", null)
-                .show();
-    }
-
-    private void saveToCsv() {
-        String idStr = etDonorId.getText().toString().trim();
-        String name = etDonorName.getText().toString().trim();
-        String ageStr = etDonorAge.getText().toString().trim();
-        String bloodGroup = spBloodGroup.getSelectedItem() != null ? spBloodGroup.getSelectedItem().toString() : "";
-
-        if (idStr.isEmpty() || name.isEmpty() || ageStr.isEmpty()) {
-            Toast.makeText(this, "Please enter donor details in the form first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            File file = new File(getFilesDir(), "donors.csv");
-            boolean isNew = !file.exists();
-            FileWriter writer = new FileWriter(file, true);
-            if (isNew) {
-                writer.append("id,name,age,bloodGroup\n");
-            }
-            writer.append(idStr).append(",").append(name).append(",").append(ageStr).append(",").append(bloodGroup).append("\n");
-            writer.flush();
-            writer.close();
-            Toast.makeText(this, "Saved to donors.csv", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Log.e(TAG, "Error saving donor data to CSV file", e);
-            Toast.makeText(this, "Error saving to CSV", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void readCsv() {
-        File file = new File(getFilesDir(), "donors.csv");
-        if (!file.exists()) {
-            Toast.makeText(this, "donors.csv does not exist", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        StringBuilder recordsBuilder = new StringBuilder();
-        int oNegativeCount = 0;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            boolean isHeader = true;
-            while ((line = br.readLine()) != null) {
-                if (isHeader) {
-                    isHeader = false; // Skip CSV header
-                    continue;
-                }
-                if (line.trim().isEmpty()) continue;
-
-                String[] parts = line.split(",");
-                if (parts.length >= 4) {
-                    String id = parts[0].trim();
-                    String donorName = parts[1].trim();
-                    String age = parts[2].trim();
-                    String bloodGroup = parts[3].trim();
-
-                    recordsBuilder.append("ID: ").append(id)
-                            .append(", Name: ").append(donorName)
-                            .append(", Age: ").append(age)
-                            .append(", Blood Group: ").append(bloodGroup)
-                            .append("\n");
-
-                    if ("O-".equalsIgnoreCase(bloodGroup)) {
-                        oNegativeCount++;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading donor data from CSV file", e);
-            Toast.makeText(this, "Error reading CSV file", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String message = recordsBuilder.length() > 0 ? recordsBuilder.toString() : "No records found.";
-        message += "\n-----------------------\nTotal O- Donors: " + oNegativeCount;
-
-        new AlertDialog.Builder(this)
-                .setTitle("Read CSV Results")
-                .setMessage(message)
-                .setPositiveButton("OK", null)
-                .show();
-    }
-
-    private void deleteFiles() {
-        File txtFile = new File(getFilesDir(), "donors.txt");
-        File csvFile = new File(getFilesDir(), "donors.csv");
-
-        boolean txtDeleted = false;
-        boolean csvDeleted = false;
-
-        if (txtFile.exists()) {
-            txtDeleted = txtFile.delete();
-        }
-        if (csvFile.exists()) {
-            csvDeleted = csvFile.delete();
-        }
-
-        Toast.makeText(this, "Files deleted (TXT: " + (txtDeleted ? "Deleted" : "Not found") + ", CSV: " + (csvDeleted ? "Deleted" : "Not found") + ")", Toast.LENGTH_SHORT).show();
     }
 }

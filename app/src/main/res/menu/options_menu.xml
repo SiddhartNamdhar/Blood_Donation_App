@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_save_txt"
-        android:title="@string/menu_save_to_txt" />
+        android:id="@+id/menu_profile"
+        android:title="@string/menu_profile"
+        app:showAsAction="never" />
     <item
-        android:id="@+id/menu_read_txt"
-        android:title="@string/menu_read_txt" />
-    <item
-        android:id="@+id/menu_save_csv"
-        android:title="@string/menu_save_to_csv" />
-    <item
-        android:id="@+id/menu_read_csv"
-        android:title="@string/menu_read_csv" />
-    <item
-        android:id="@+id/menu_delete_files"
-        android:title="@string/menu_delete_files" />
+        android:id="@+id/menu_logout"
+        android:title="@string/menu_logout"
+        app:showAsAction="never" />
 </menu>
