@@ -13,3 +13,24 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+.idea/
+*.log
+firestore-debug.log
+
+# Firebase Admin Credentials & Keys
+serviceAccountKey.json
+*serviceAccount*.json
+*.pem
+*.p12
+
+# Node dependencies & logs
+**/node_modules/
+node_modules/
+functions/node_modules/
+scripts/node_modules/
+test_rules/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+app/google-services.json

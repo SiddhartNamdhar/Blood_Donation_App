@@ -61,16 +61,35 @@
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="#C62828"
-                            android:layout_marginBottom="16dp" />
+                            android:layout_marginBottom="12dp" />
 
-                        <EditText
-                            android:id="@+id/etDonorAuthName"
+                        <!-- Toggle Group for Mode Selection -->
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggleGroupDonorMode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/name_hint"
-                            android:inputType="textPersonName"
-                            android:autofillHints="name"
-                            android:minHeight="48dp" />
+                            android:layout_marginBottom="16dp"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            app:checkedButton="@id/btnModeDonorSignIn">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnModeDonorSignIn"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/mode_sign_in" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnModeDonorRegister"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/mode_register" />
+
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
 
                         <EditText
                             android:id="@+id/etDonorAuthEmail"
@@ -82,45 +101,148 @@
                             android:minHeight="48dp" />
 
                         <EditText
-                            android:id="@+id/etDonorAuthMobile"
+                            android:id="@+id/etDonorAuthPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/hint_mobile"
-                            android:inputType="phone"
-                            android:autofillHints="phone"
+                            android:hint="@string/hint_password"
+                            android:inputType="textPassword"
+                            android:importantForAutofill="no"
                             android:minHeight="48dp" />
 
+                        <TextView
+                            android:id="@+id/tvDonorForgotPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="8dp"
+                            android:padding="8dp"
+                            android:text="@string/forgot_password"
+                            android:textColor="@color/pastel_red"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground" />
+
+                        <!-- Container for Registration-Only Fields -->
                         <LinearLayout
+                            android:id="@+id/layoutDonorRegistrationFields"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="4dp"
-                            android:layout_marginBottom="16dp">
+                            android:orientation="vertical"
+                            android:visibility="gone">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/hint_gender"
-                                android:textSize="16sp"
-                                android:textColor="@android:color/black"
-                                android:layout_marginEnd="12dp" />
-
-                            <Spinner
-                                android:id="@+id/spDonorAuthGender"
+                            <EditText
+                                android:id="@+id/etDonorAuthConfirmPassword"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:hint="@string/hint_confirm_password"
+                                android:inputType="textPassword"
                                 android:importantForAutofill="no"
                                 android:minHeight="48dp" />
+
+                            <EditText
+                                android:id="@+id/etDonorAuthName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/name_hint"
+                                android:inputType="textPersonName"
+                                android:autofillHints="name"
+                                android:minHeight="48dp" />
+
+                            <EditText
+                                android:id="@+id/etDonorAuthMobile"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/hint_mobile"
+                                android:inputType="phone"
+                                android:autofillHints="phone"
+                                android:minHeight="48dp" />
+
+                            <EditText
+                                android:id="@+id/etDonorAuthAge"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/hint_age"
+                                android:inputType="number"
+                                android:importantForAutofill="no"
+                                android:minHeight="48dp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="4dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/hint_gender"
+                                    android:textSize="16sp"
+                                    android:textColor="@android:color/black"
+                                    android:layout_marginEnd="12dp" />
+
+                                <Spinner
+                                    android:id="@+id/spDonorAuthGender"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:importantForAutofill="no"
+                                    android:minHeight="48dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="4dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/blood_group_label"
+                                    android:textSize="16sp"
+                                    android:textColor="@android:color/black"
+                                    android:layout_marginEnd="12dp" />
+
+                                <Spinner
+                                    android:id="@+id/spDonorAuthBloodGroup"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:importantForAutofill="no"
+                                    android:minHeight="48dp" />
+                            </LinearLayout>
+
                         </LinearLayout>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDonorLogin"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/btn_login_signup"
+                            android:text="@string/mode_sign_in"
                             android:textSize="16sp"
+                            android:layout_marginTop="16dp"
                             app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDonorRetryProfile"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/btn_retry_profile"
+                            android:layout_marginTop="8dp"
+                            android:visibility="gone"
+                            app:cornerRadius="8dp" />
+
+                        <ProgressBar
+                            android:id="@+id/pbDonorAuth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            android:visibility="gone" />
 
                         <TextView
                             android:layout_width="wrap_content"

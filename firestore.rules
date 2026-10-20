@@ -1,0 +1,416 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // HELPER FUNCTIONS & ROLE VERIFICATION
+    // =========================================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isStaff() {
+      return isAuthenticated() && request.auth.token.role == 'Staff';
+    }
+
+    function isValidBloodGroup(bg) {
+      return bg in ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
+    }
+
+    function isValidGender(g) {
+      return g in ['Male', 'Female', 'Other', 'Not provided'];
+    }
+
+    // Default deny all access unless explicitly granted below
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // STAFF PROFILES (/staffs/{uid})
+    // A document here NEVER grants staff privileges. Only Firebase custom claim
+    // 'role == Staff' grants staff privileges.
+    // =========================================================================
+    match /staffs/{uid} {
+      allow read: if isOwner(uid) || isStaff();
+      
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'name', 'email', 'organisation', 'org', 'phone', 'mobile', 'gender', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['uid', 'fullName', 'email', 'createdAt', 'updatedAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.email is string && request.resource.data.email.size() >= 5
+        && request.resource.data.fullName is string && request.resource.data.fullName.size() >= 2
+        && (request.resource.data.keys().hasAny(['name']) ? (request.resource.data.name is string && request.resource.data.name.size() >= 2) : true)
+        && (request.resource.data.keys().hasAny(['organisation']) ? request.resource.data.organisation is string : true)
+        && (request.resource.data.keys().hasAny(['org']) ? request.resource.data.org is string : true)
+        && (request.resource.data.keys().hasAny(['phone']) ? request.resource.data.phone is string : true)
+        && (request.resource.data.keys().hasAny(['mobile']) ? request.resource.data.mobile is string : true)
+        && (request.resource.data.keys().hasAny(['gender']) ? isValidGender(request.resource.data.gender) : true)
+        && request.resource.data.createdAt is int
+        && request.resource.data.updatedAt is int
+        && (!request.resource.data.keys().hasAny(['role', 'isStaff', 'admin', 'permissions']));
+
+      allow update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'name', 'email', 'organisation', 'org', 'phone', 'mobile', 'gender', 'createdAt', 'updatedAt'])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'name', 'organisation', 'org', 'phone', 'mobile', 'gender', 'updatedAt'])
+        && (!request.resource.data.keys().hasAny(['role', 'isStaff', 'admin', 'permissions']))
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['fullName']) ? (request.resource.data.fullName is string && request.resource.data.fullName.size() >= 2) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) ? (request.resource.data.name is string && request.resource.data.name.size() >= 2) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['organisation']) ? request.resource.data.organisation is string : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['org']) ? request.resource.data.org is string : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['phone']) ? request.resource.data.phone is string : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['mobile']) ? request.resource.data.mobile is string : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['gender']) ? isValidGender(request.resource.data.gender) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['updatedAt']) ? request.resource.data.updatedAt is int : true);
+
+      allow delete: if false;
+    }
+
+    // =========================================================================
+    // DONOR DISPLAY ID RESERVATIONS (/donorDisplayIds/{displayId})
+    // Enforces atomic uniqueness, prevents ID hoarding, and prevents impersonation.
+    // Read is restricted to the reservation owner and authorized Staff.
+    // Document ID must be the 4-digit string of the display ID.
+    // Must be committed in the same atomic WriteBatch as the donor profile.
+    // =========================================================================
+    match /donorDisplayIds/{displayId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.donorUid == request.auth.uid);
+      
+      allow create: if isAuthenticated()
+        && displayId.matches('^[1-9][0-9]{3}$')
+        && request.resource.data.keys().hasOnly(['donorUid', 'assignedAt'])
+        && request.resource.data.keys().hasAll(['donorUid', 'assignedAt'])
+        && request.resource.data.donorUid == request.auth.uid
+        && request.resource.data.assignedAt is int
+        && !exists(/databases/$(database)/documents/donorDisplayIds/$(displayId))
+        && !exists(/databases/$(database)/documents/donors/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/donors/$(request.auth.uid)).data.donorDisplayId == int(displayId)
+        && getAfter(/databases/$(database)/documents/donors/$(request.auth.uid)).data.uid == request.auth.uid;
+
+      allow update, delete: if false;
+    }
+
+    // =========================================================================
+    // DONOR PROFILES (/donors/{uid})
+    // =========================================================================
+    match /donors/{uid} {
+      allow read: if isOwner(uid) || isStaff();
+
+      allow create: if isOwner(uid)
+        && (!request.resource.data.keys().hasAny(['role', 'screeningStatus', 'isStaff', 'admin']))
+        && request.resource.data.keys().hasAll(['uid', 'fullName', 'email', 'phone', 'age', 'gender', 'bloodGroup', 'donorDisplayId', 'optInNotifications', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'name', 'email', 'phone', 'mobile', 'age', 'gender', 'bloodGroup', 'donorDisplayId', 'optInNotifications', 'createdAt', 'updatedAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.fullName is string && request.resource.data.fullName.size() >= 2
+        && request.resource.data.email is string && request.resource.data.email.size() >= 5
+        && request.resource.data.phone is string && request.resource.data.phone.size() >= 10
+        && request.resource.data.age is int && request.resource.data.age >= 16 && request.resource.data.age <= 120
+        && isValidGender(request.resource.data.gender)
+        && isValidBloodGroup(request.resource.data.bloodGroup)
+        && request.resource.data.donorDisplayId is int && request.resource.data.donorDisplayId >= 1000 && request.resource.data.donorDisplayId <= 9999
+        && getAfter(/databases/$(database)/documents/donorDisplayIds/$(string(request.resource.data.donorDisplayId))).data.donorUid == request.auth.uid
+        && request.resource.data.optInNotifications is bool
+        && request.resource.data.createdAt is int
+        && request.resource.data.updatedAt is int;
+
+      allow update: if (
+        isOwner(uid)
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'name', 'email', 'phone', 'mobile', 'age', 'gender', 'bloodGroup', 'donorDisplayId', 'optInNotifications', 'fcmToken', 'createdAt', 'updatedAt'])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.donorDisplayId == resource.data.donorDisplayId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'screeningStatus', 'donorDisplayId', 'uid', 'createdAt', 'isStaff', 'admin'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'name', 'email', 'phone', 'mobile', 'age', 'gender', 'bloodGroup', 'optInNotifications', 'fcmToken', 'updatedAt'])
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['fullName']) ? (request.resource.data.fullName is string && request.resource.data.fullName.size() >= 2) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['optInNotifications']) ? request.resource.data.optInNotifications is bool : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['fcmToken']) ? (request.resource.data.fcmToken == null || request.resource.data.fcmToken is string) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['age']) ? (request.resource.data.age is int && request.resource.data.age >= 16 && request.resource.data.age <= 120) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['bloodGroup']) ? isValidBloodGroup(request.resource.data.bloodGroup) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['gender']) ? isValidGender(request.resource.data.gender) : true)
+      ) || (
+        isStaff()
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'name', 'email', 'phone', 'mobile', 'age', 'gender', 'bloodGroup', 'donorDisplayId', 'optInNotifications', 'fcmToken', 'screeningStatus', 'createdAt', 'updatedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['screeningStatus', 'updatedAt'])
+        && request.resource.data.screeningStatus in ['CLEARED', 'DEFERRED', 'PENDING_SCREENING']
+      );
+
+      allow delete: if false;
+    }
+
+    // =========================================================================
+    // BLOOD DONATION CAMPS (/camps/{campId})
+    // =========================================================================
+    match /camps/{campId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.status == 'PUBLISHED');
+
+      allow create: if isStaff()
+        && request.resource.data.keys().hasOnly(['campId', 'name', 'campName', 'location', 'date', 'timePeriod', 'status', 'staffUid', 'organizerStaffUid', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['campId', 'location', 'date', 'timePeriod', 'status', 'createdAt'])
+        && request.resource.data.keys().hasAny(['name', 'campName'])
+        && request.resource.data.keys().hasAny(['staffUid', 'organizerStaffUid'])
+        && request.resource.data.campId == campId
+        && (request.resource.data.keys().hasAny(['staffUid']) ? request.resource.data.staffUid == request.auth.uid : true)
+        && (request.resource.data.keys().hasAny(['organizerStaffUid']) ? request.resource.data.organizerStaffUid == request.auth.uid : true)
+        && (request.resource.data.keys().hasAny(['name']) ? (request.resource.data.name is string && request.resource.data.name.size() > 0) : true)
+        && (request.resource.data.keys().hasAny(['campName']) ? (request.resource.data.campName is string && request.resource.data.campName.size() > 0) : true)
+        && request.resource.data.location is string && request.resource.data.location.size() > 0 && request.resource.data.location.size() <= 200
+        && request.resource.data.date is string && request.resource.data.date.size() >= 8 && request.resource.data.date.size() <= 20
+        && request.resource.data.timePeriod is string && request.resource.data.timePeriod.size() >= 2 && request.resource.data.timePeriod.size() <= 50
+        && request.resource.data.status in ['PUBLISHED', 'DRAFT', 'COMPLETED', 'CANCELLED']
+        && request.resource.data.createdAt is int;
+
+      allow update: if isStaff()
+        && (
+          (!resource.data.keys().hasAny(['staffUid', 'organizerStaffUid']))
+          || (resource.data.keys().hasAny(['staffUid']) && resource.data.staffUid == request.auth.uid)
+          || (resource.data.keys().hasAny(['organizerStaffUid']) && resource.data.organizerStaffUid == request.auth.uid)
+        )
+        && request.resource.data.keys().hasOnly(['campId', 'name', 'campName', 'location', 'date', 'timePeriod', 'status', 'staffUid', 'organizerStaffUid', 'createdAt', 'updatedAt'])
+        && request.resource.data.campId == resource.data.campId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (resource.data.keys().hasAny(['staffUid']) ? request.resource.data.staffUid == resource.data.staffUid : true)
+        && (resource.data.keys().hasAny(['organizerStaffUid']) ? request.resource.data.organizerStaffUid == resource.data.organizerStaffUid : true)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'campName', 'location', 'date', 'timePeriod', 'status', 'updatedAt'])
+        && request.resource.data.status in ['PUBLISHED', 'DRAFT', 'COMPLETED', 'CANCELLED']
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['location']) ? (request.resource.data.location is string && request.resource.data.location.size() > 0 && request.resource.data.location.size() <= 200) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['date']) ? (request.resource.data.date is string && request.resource.data.date.size() >= 8 && request.resource.data.date.size() <= 20) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['timePeriod']) ? (request.resource.data.timePeriod is string && request.resource.data.timePeriod.size() >= 2 && request.resource.data.timePeriod.size() <= 50) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) ? (request.resource.data.name is string && request.resource.data.name.size() > 0) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['campName']) ? (request.resource.data.campName is string && request.resource.data.campName.size() > 0) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['updatedAt']) ? request.resource.data.updatedAt is int : true);
+
+      allow delete: if isStaff()
+        && (
+          (!resource.data.keys().hasAny(['staffUid', 'organizerStaffUid']))
+          || (resource.data.keys().hasAny(['staffUid']) && resource.data.staffUid == request.auth.uid)
+          || (resource.data.keys().hasAny(['organizerStaffUid']) && resource.data.organizerStaffUid == request.auth.uid)
+        );
+    }
+
+    // =========================================================================
+    // CAMP REGISTRATIONS (/campRegistrations/{registrationId})
+    // Key format: {campId}_{donorUid}
+    // =========================================================================
+    match /campRegistrations/{registrationId} {
+      allow read: if isAuthenticated() && (resource.data.donorUid == request.auth.uid || isStaff());
+
+      allow create: if isAuthenticated()
+        && request.resource.data.donorUid == request.auth.uid
+        && registrationId == request.resource.data.campId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['registrationId', 'campId', 'campTitle', 'donorUid', 'donorDisplayId', 'donorName', 'bloodGroup', 'status', 'registeredAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['registrationId', 'campId', 'campTitle', 'donorUid', 'donorDisplayId', 'donorName', 'bloodGroup', 'status', 'registeredAt'])
+        && request.resource.data.registrationId == registrationId
+        && request.resource.data.campId is string && request.resource.data.campId.size() > 0
+        && request.resource.data.campTitle is string && request.resource.data.campTitle.size() > 0
+        && request.resource.data.donorName is string && request.resource.data.donorName.size() > 0
+        && request.resource.data.donorDisplayId is int && request.resource.data.donorDisplayId >= 1000 && request.resource.data.donorDisplayId <= 9999
+        && isValidBloodGroup(request.resource.data.bloodGroup)
+        && request.resource.data.status == 'REGISTERED'
+        && request.resource.data.registeredAt is int
+        && exists(/databases/$(database)/documents/camps/$(request.resource.data.campId))
+        && get(/databases/$(database)/documents/camps/$(request.resource.data.campId)).data.status == 'PUBLISHED';
+
+      allow update: if (
+        // Donor update: Can cancel registration, but cannot change camp, donor identity, or mark attended
+        resource.data.donorUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['registrationId', 'campId', 'campTitle', 'donorUid', 'donorDisplayId', 'donorName', 'bloodGroup', 'status', 'registeredAt', 'updatedAt'])
+        && request.resource.data.registrationId == resource.data.registrationId
+        && request.resource.data.campId == resource.data.campId
+        && request.resource.data.campTitle == resource.data.campTitle
+        && request.resource.data.donorUid == resource.data.donorUid
+        && request.resource.data.donorDisplayId == resource.data.donorDisplayId
+        && request.resource.data.donorName == resource.data.donorName
+        && request.resource.data.bloodGroup == resource.data.bloodGroup
+        && request.resource.data.registeredAt == resource.data.registeredAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['REGISTERED', 'CANCELLED']
+      ) || (
+        // Staff update: Restrict staff to the fields staff actually manage (status & updatedAt)
+        isStaff()
+        && request.resource.data.keys().hasOnly(['registrationId', 'campId', 'campTitle', 'donorUid', 'donorDisplayId', 'donorName', 'bloodGroup', 'status', 'registeredAt', 'updatedAt'])
+        && request.resource.data.registrationId == resource.data.registrationId
+        && request.resource.data.campId == resource.data.campId
+        && request.resource.data.campTitle == resource.data.campTitle
+        && request.resource.data.donorUid == resource.data.donorUid
+        && request.resource.data.donorDisplayId == resource.data.donorDisplayId
+        && request.resource.data.donorName == resource.data.donorName
+        && request.resource.data.bloodGroup == resource.data.bloodGroup
+        && request.resource.data.registeredAt == resource.data.registeredAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['REGISTERED', 'ATTENDED', 'CANCELLED']
+      );
+
+      allow delete: if (isAuthenticated() && resource.data.donorUid == request.auth.uid) || isStaff();
+    }
+
+    // =========================================================================
+    // DONATION RECORDS (/donationRecords/{recordId})
+    // Writing is strictly restricted to authorized staff.
+    // Validates that donorUid exists and donorDisplayId matches the donor's profile.
+    // Uses 1 cached get/exists call (well below the 10-call limit).
+    // =========================================================================
+    match /donationRecords/{recordId} {
+      allow read: if isAuthenticated() && (resource.data.donorUid == request.auth.uid || isStaff());
+
+      allow create: if isStaff()
+        && request.resource.data.keys().hasOnly(['recordId', 'donorUid', 'donorDisplayId', 'donorName', 'campId', 'campName', 'staffUid', 'donationDate', 'bloodVolume', 'volumeUnit', 'hemoglobin', 'bloodGroup', 'status', 'timestamp', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['recordId', 'donorUid', 'donorDisplayId', 'staffUid', 'donationDate', 'bloodVolume', 'volumeUnit', 'hemoglobin', 'bloodGroup', 'status', 'timestamp'])
+        && request.resource.data.recordId == recordId
+        && request.resource.data.staffUid == request.auth.uid
+        && request.resource.data.donorUid is string && request.resource.data.donorUid.size() > 0
+        && request.resource.data.donorDisplayId is int && request.resource.data.donorDisplayId >= 1000 && request.resource.data.donorDisplayId <= 9999
+        && isValidBloodGroup(request.resource.data.bloodGroup)
+        && request.resource.data.status in ['COMPLETED', 'RECORDED']
+        && request.resource.data.timestamp is int && request.resource.data.timestamp > 0
+        && request.resource.data.donationDate is string && request.resource.data.donationDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.volumeUnit == 'ml'
+        && (
+          (request.resource.data.bloodVolume is string && request.resource.data.bloodVolume.matches('^[0-9]{3}$') && int(request.resource.data.bloodVolume) >= 200 && int(request.resource.data.bloodVolume) <= 600)
+          || (request.resource.data.bloodVolume is int && request.resource.data.bloodVolume >= 200 && request.resource.data.bloodVolume <= 600)
+        )
+        && (
+          (request.resource.data.hemoglobin is string && request.resource.data.hemoglobin.matches('^([7-9](\\.[0-9]+)?|1[0-9](\\.[0-9]+)?|20(\\.0+)?)$'))
+          || (request.resource.data.hemoglobin is number && request.resource.data.hemoglobin >= 7 && request.resource.data.hemoglobin <= 20)
+        )
+        && exists(/databases/$(database)/documents/donors/$(request.resource.data.donorUid))
+        && get(/databases/$(database)/documents/donors/$(request.resource.data.donorUid)).data.donorDisplayId == request.resource.data.donorDisplayId
+        && (request.resource.data.keys().hasAny(['donorName']) ? request.resource.data.donorName is string : true)
+        && (request.resource.data.keys().hasAny(['campId']) ? request.resource.data.campId is string : true)
+        && (request.resource.data.keys().hasAny(['campName']) ? request.resource.data.campName is string : true);
+
+      allow update: if isStaff()
+        && request.resource.data.keys().hasOnly(['recordId', 'donorUid', 'donorDisplayId', 'donorName', 'campId', 'campName', 'staffUid', 'donationDate', 'bloodVolume', 'volumeUnit', 'hemoglobin', 'bloodGroup', 'status', 'timestamp', 'updatedAt'])
+        && request.resource.data.recordId == resource.data.recordId
+        && request.resource.data.donorUid == resource.data.donorUid
+        && request.resource.data.donorDisplayId == resource.data.donorDisplayId
+        && request.resource.data.staffUid == resource.data.staffUid
+        && request.resource.data.timestamp == resource.data.timestamp
+        && request.resource.data.donationDate == resource.data.donationDate
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bloodVolume', 'volumeUnit', 'hemoglobin', 'status', 'bloodGroup', 'donorName', 'campId', 'campName', 'updatedAt'])
+        && (
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['bloodVolume'])
+          ? (
+            (request.resource.data.bloodVolume is string && request.resource.data.bloodVolume.matches('^[0-9]{3}$') && int(request.resource.data.bloodVolume) >= 200 && int(request.resource.data.bloodVolume) <= 600)
+            || (request.resource.data.bloodVolume is int && request.resource.data.bloodVolume >= 200 && request.resource.data.bloodVolume <= 600)
+          )
+          : true
+        )
+        && (
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['volumeUnit'])
+          ? request.resource.data.volumeUnit == 'ml'
+          : true
+        )
+        && (
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['hemoglobin'])
+          ? (
+            (request.resource.data.hemoglobin is string && request.resource.data.hemoglobin.matches('^([7-9](\\.[0-9]+)?|1[0-9](\\.[0-9]+)?|20(\\.0+)?)$'))
+            || (request.resource.data.hemoglobin is number && request.resource.data.hemoglobin >= 7 && request.resource.data.hemoglobin <= 20)
+          )
+          : true
+        )
+        && (
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
+          ? request.resource.data.status in ['COMPLETED', 'RECORDED']
+          : true
+        )
+        && (
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['bloodGroup'])
+          ? isValidBloodGroup(request.resource.data.bloodGroup)
+          : true
+        );
+
+      allow delete: if isStaff();
+    }
+
+    // =========================================================================
+    // BLOOD REQUESTS (/bloodRequests/{requestId})
+    // =========================================================================
+    match /bloodRequests/{requestId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.status in ['ONGOING', 'COMPLETED']);
+
+      allow create: if isStaff()
+        && request.resource.data.keys().hasOnly(['requestId', 'title', 'bloodGroup', 'hospital', 'contactPhone', 'urgency', 'status', 'staffUid', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['requestId', 'bloodGroup', 'hospital', 'status', 'staffUid', 'createdAt'])
+        && request.resource.data.requestId == requestId
+        && request.resource.data.staffUid == request.auth.uid
+        && isValidBloodGroup(request.resource.data.bloodGroup)
+        && request.resource.data.hospital is string && request.resource.data.hospital.size() > 0 && request.resource.data.hospital.size() <= 200
+        && request.resource.data.status == 'ONGOING'
+        && request.resource.data.createdAt is int
+        && (request.resource.data.keys().hasAny(['title']) ? (request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 100) : true)
+        && (request.resource.data.keys().hasAny(['contactPhone']) ? (request.resource.data.contactPhone is string && request.resource.data.contactPhone.size() >= 7 && request.resource.data.contactPhone.size() <= 25) : true)
+        && (request.resource.data.keys().hasAny(['urgency']) ? request.resource.data.urgency in ['CRITICAL', 'URGENT', 'STANDARD'] : true);
+
+      allow update: if isStaff()
+        && request.resource.data.keys().hasOnly(['requestId', 'title', 'bloodGroup', 'hospital', 'contactPhone', 'urgency', 'status', 'staffUid', 'createdAt', 'updatedAt'])
+        && request.resource.data.requestId == resource.data.requestId
+        && request.resource.data.staffUid == resource.data.staffUid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.bloodGroup == resource.data.bloodGroup
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'hospital', 'contactPhone', 'urgency', 'status', 'updatedAt'])
+        && (request.resource.data.status == resource.data.status || (resource.data.status == 'ONGOING' && request.resource.data.status in ['COMPLETED', 'CANCELLED']))
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['hospital']) ? (request.resource.data.hospital is string && request.resource.data.hospital.size() > 0 && request.resource.data.hospital.size() <= 200) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['title']) ? (request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 100) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['contactPhone']) ? (request.resource.data.contactPhone is string && request.resource.data.contactPhone.size() >= 7 && request.resource.data.contactPhone.size() <= 25) : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['urgency']) ? request.resource.data.urgency in ['CRITICAL', 'URGENT', 'STANDARD'] : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['updatedAt']) ? request.resource.data.updatedAt is int : true);
+
+      allow delete: if isStaff();
+    }
+
+    // =========================================================================
+    // REQUEST RESPONSES (/requestResponses/{responseId})
+    // =========================================================================
+    match /requestResponses/{responseId} {
+      allow read: if isAuthenticated() && (resource.data.donorUid == request.auth.uid || isStaff());
+
+      allow create: if isAuthenticated()
+        && request.resource.data.donorUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['responseId', 'requestId', 'donorUid', 'donorName', 'bloodGroup', 'status', 'message', 'respondedAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['requestId', 'donorUid', 'status', 'respondedAt'])
+        && request.resource.data.requestId is string && request.resource.data.requestId.size() > 0
+        && request.resource.data.status in ['OFFERED', 'RESPONDED', 'PENDING']
+        && request.resource.data.respondedAt is int
+        && (!request.resource.data.keys().hasAny(['staffNotes', 'decidedAt', 'decidedByStaffUid']))
+        && (request.resource.data.keys().hasAny(['responseId']) ? (request.resource.data.responseId is string && request.resource.data.responseId == responseId) : true)
+        && (request.resource.data.keys().hasAny(['donorName']) ? request.resource.data.donorName is string : true)
+        && (request.resource.data.keys().hasAny(['bloodGroup']) ? isValidBloodGroup(request.resource.data.bloodGroup) : true)
+        && (request.resource.data.keys().hasAny(['message']) ? request.resource.data.message is string : true);
+
+      allow update: if (
+        // Donor update: Can edit message or updatedAt, but CANNOT change status, approval decisions, or staff notes
+        resource.data.donorUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['responseId', 'requestId', 'donorUid', 'donorName', 'bloodGroup', 'status', 'message', 'staffNotes', 'respondedAt', 'updatedAt', 'decidedAt', 'decidedByStaffUid'])
+        && request.resource.data.requestId == resource.data.requestId
+        && request.resource.data.donorUid == resource.data.donorUid
+        && request.resource.data.respondedAt == resource.data.respondedAt
+        && request.resource.data.status == resource.data.status
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'staffNotes', 'decidedAt', 'decidedByStaffUid', 'requestId', 'donorUid', 'respondedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['message', 'donorName', 'bloodGroup', 'updatedAt'])
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['message']) ? request.resource.data.message is string : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['bloodGroup']) ? isValidBloodGroup(request.resource.data.bloodGroup) : true)
+      ) || (
+        // Staff update: Can make approval decisions, set staffNotes, decidedAt, decidedByStaffUid
+        isStaff()
+        && request.resource.data.keys().hasOnly(['responseId', 'requestId', 'donorUid', 'donorName', 'bloodGroup', 'status', 'message', 'staffNotes', 'respondedAt', 'updatedAt', 'decidedAt', 'decidedByStaffUid'])
+        && request.resource.data.requestId == resource.data.requestId
+        && request.resource.data.donorUid == resource.data.donorUid
+        && request.resource.data.respondedAt == resource.data.respondedAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'staffNotes', 'decidedAt', 'decidedByStaffUid', 'updatedAt'])
+        && request.resource.data.status in ['ACCEPTED', 'REJECTED', 'COMPLETED', 'OFFERED', 'RESPONDED', 'PENDING']
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['decidedByStaffUid']) ? request.resource.data.decidedByStaffUid == request.auth.uid : true)
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny(['staffNotes']) ? request.resource.data.staffNotes is string : true)
+      );
+
+      allow delete: if (isAuthenticated() && resource.data.donorUid == request.auth.uid) || isStaff();
+    }
+  }
+}

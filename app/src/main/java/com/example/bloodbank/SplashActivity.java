@@ -3,10 +3,12 @@ package com.example.bloodbank;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.bloodbank.data.model.DonorProfile;
+import com.example.bloodbank.data.model.StaffProfile;
+import com.example.bloodbank.data.repository.AuthRepository;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -16,11 +18,29 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Delay for 0.7 seconds (700 ms) and navigate to OnboardingActivity
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
-            startActivity(intent);
-            finish();
-        }, 700);
+        AuthRepository authRepository = AuthRepository.getInstance(this);
+
+        authRepository.checkActiveSession(new AuthRepository.SessionCheckCallback() {
+            @Override
+            public void onAuthenticatedStaff(StaffProfile staffProfile) {
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onAuthenticatedDonor(DonorProfile donorProfile) {
+                Intent intent = new Intent(SplashActivity.this, DonorActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onUnauthenticated() {
+                Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }
