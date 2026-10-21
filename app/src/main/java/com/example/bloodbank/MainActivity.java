@@ -30,6 +30,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
+import android.widget.ScrollView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -389,8 +396,49 @@ public class MainActivity extends AppCompatActivity {
         // Listen for Published Camps from Firestore
         listenForCamps();
 
+        // Edge-to-edge / IME Soft Keyboard listener to prevent bottom navigation overlap
+        FrameLayout frameMainContent = findViewById(R.id.frameMainContent);
+        ScrollView scrollDonation = findViewById(R.id.scrollDonation);
+        View coordinatorLayout = findViewById(R.id.coordinatorLayout);
+
+        if (coordinatorLayout != null && frameMainContent != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(coordinatorLayout, (v, windowInsets) -> {
+                boolean isImeVisible = windowInsets.isVisible(WindowInsetsCompat.Type.ime());
+                CoordinatorLayout.LayoutParams frameParams = (CoordinatorLayout.LayoutParams) frameMainContent.getLayoutParams();
+                if (frameParams != null) {
+                    if (isImeVisible) {
+                        bottomNavigationView.setVisibility(View.GONE);
+                        frameParams.bottomMargin = 0;
+                    } else {
+                        bottomNavigationView.setVisibility(View.VISIBLE);
+                        frameParams.bottomMargin = (int) (60 * getResources().getDisplayMetrics().density);
+                    }
+                    frameMainContent.setLayoutParams(frameParams);
+                }
+                return windowInsets;
+            });
+        }
+
+        // Auto-scroll when entering blood volume or hemoglobin so inputs and submit button stay accessible
+        View.OnFocusChangeListener autoScrollFocusListener = (v, hasFocus) -> {
+            if (hasFocus && scrollDonation != null) {
+                scrollDonation.postDelayed(() -> {
+                    scrollDonation.smoothScrollTo(0, v.getBottom() + (int) (90 * getResources().getDisplayMetrics().density));
+                }, 200);
+            }
+        };
+        etBloodDonated.setOnFocusChangeListener(autoScrollFocusListener);
+        etHemoglobin.setOnFocusChangeListener(autoScrollFocusListener);
+
         // Bottom Navigation Switcher
         bottomNavigationView.setOnItemSelectedListener(item -> {
+            // Dismiss keyboard on tab switch to avoid ghost input or accidental submits
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            View focused = getCurrentFocus();
+            if (imm != null && focused != null) {
+                imm.hideSoftInputFromWindow(focused.getWindowToken(), 0);
+            }
+
             int itemId = item.getItemId();
             if (itemId == R.id.nav_donation) {
                 layoutDonation.setVisibility(View.VISIBLE);
@@ -502,7 +550,7 @@ public class MainActivity extends AppCompatActivity {
             TextView tvTitle = (TextView) contentLayout.getChildAt(0);
             if (tvTitle != null) {
                 tvTitle.setText(completedTitle);
-                tvTitle.setTextColor(Color.parseColor("#2E7D32"));
+                tvTitle.setTextColor(getColor(R.color.status_cleared));
             }
             if (btnComplete != null) {
                 contentLayout.removeView(btnComplete);
@@ -517,17 +565,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void showOrganiseCampDialog() {
         int paddingPx = (int) (16 * getResources().getDisplayMetrics().density);
+        int marginPx = (int) (8 * getResources().getDisplayMetrics().density);
 
         EditText etLocation = new EditText(this);
         etLocation.setHint(R.string.hint_location);
+        etLocation.setTextColor(getColor(R.color.text_primary));
+        etLocation.setHintTextColor(getColor(R.color.text_secondary));
+        etLocation.setBackgroundResource(R.drawable.bg_input_field);
+        etLocation.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
         EditText etCampName = new EditText(this);
         etCampName.setHint(R.string.hint_camp_name);
+        etCampName.setTextColor(getColor(R.color.text_primary));
+        etCampName.setHintTextColor(getColor(R.color.text_secondary));
+        etCampName.setBackgroundResource(R.drawable.bg_input_field);
+        etCampName.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
         EditText etDate = new EditText(this);
         etDate.setHint(R.string.hint_date);
         etDate.setFocusable(false);
         etDate.setClickable(true);
+        etDate.setTextColor(getColor(R.color.text_primary));
+        etDate.setHintTextColor(getColor(R.color.text_secondary));
+        etDate.setBackgroundResource(R.drawable.bg_input_field);
+        etDate.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
         etDate.setOnClickListener(v -> {
             Calendar cal = Calendar.getInstance();
             new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
@@ -540,6 +601,10 @@ public class MainActivity extends AppCompatActivity {
         etTime.setHint(R.string.hint_time_period);
         etTime.setFocusable(false);
         etTime.setClickable(true);
+        etTime.setTextColor(getColor(R.color.text_primary));
+        etTime.setHintTextColor(getColor(R.color.text_secondary));
+        etTime.setBackgroundResource(R.drawable.bg_input_field);
+        etTime.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
         etTime.setOnClickListener(v -> {
             Calendar cal = Calendar.getInstance();
             new TimePickerDialog(this, (view, hourOfDay, minute) -> {
@@ -554,6 +619,18 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         container.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        itemParams.setMargins(0, 0, 0, marginPx);
+
+        etLocation.setLayoutParams(itemParams);
+        etCampName.setLayoutParams(itemParams);
+        etDate.setLayoutParams(itemParams);
+        etTime.setLayoutParams(itemParams);
+
         container.addView(etLocation);
         container.addView(etCampName);
         container.addView(etDate);
@@ -606,12 +683,13 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = new TextView(this);
         tvTitle.setText(title);
         tvTitle.setTextSize(16);
-        tvTitle.setTextColor(Color.parseColor("#212121"));
+        tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvTitle.setTextColor(getColor(R.color.text_primary));
 
         TextView tvDesc = new TextView(this);
         tvDesc.setText(desc);
         tvDesc.setTextSize(13);
-        tvDesc.setTextColor(Color.parseColor("#616161"));
+        tvDesc.setTextColor(getColor(R.color.text_secondary));
         tvDesc.setPadding(0, 8, 0, 0);
 
         cardContent.addView(tvTitle);
@@ -628,17 +706,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAddBloodRequestDialog() {
         Spinner spBloodType = new Spinner(this);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, bloodGroups);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_spinner, bloodGroups);
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         spBloodType.setAdapter(adapter);
 
         EditText etHospital = new EditText(this);
         etHospital.setHint("Hospital / Contact Details");
+        etHospital.setTextColor(getColor(R.color.text_primary));
+        etHospital.setHintTextColor(getColor(R.color.text_secondary));
+        etHospital.setBackgroundResource(R.drawable.bg_input_field);
 
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         final int finalPaddingPx = (int) (16 * getResources().getDisplayMetrics().density);
+        int marginPx = (int) (10 * getResources().getDisplayMetrics().density);
         container.setPadding(finalPaddingPx, finalPaddingPx, finalPaddingPx, finalPaddingPx);
+
+        etHospital.setPadding(finalPaddingPx, finalPaddingPx, finalPaddingPx, finalPaddingPx);
+        LinearLayout.LayoutParams hospitalParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        hospitalParams.setMargins(0, marginPx, 0, 0);
+        etHospital.setLayoutParams(hospitalParams);
+
         container.addView(spBloodType);
         container.addView(etHospital);
 
@@ -677,6 +768,8 @@ public class MainActivity extends AppCompatActivity {
         MaterialButton btnComplete = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
         btnComplete.setText(R.string.btn_mark_completed);
         btnComplete.setTextSize(13);
+        btnComplete.setTextColor(getColor(R.color.status_cleared));
+        btnComplete.setStrokeColorResource(R.color.status_cleared_stroke);
 
         cardContent.addView(btnComplete);
         requestCard.addView(cardContent);
@@ -691,15 +784,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private MaterialCardView createCardContainer() {
+        float density = getResources().getDisplayMetrics().density;
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        cardParams.setMargins(0, 0, 0, (int) (12 * getResources().getDisplayMetrics().density));
+        cardParams.setMargins(0, 0, 0, (int) (12 * density));
         card.setLayoutParams(cardParams);
-        card.setRadius(12 * getResources().getDisplayMetrics().density);
-        card.setCardElevation(3 * getResources().getDisplayMetrics().density);
+        card.setRadius(14 * density);
+        card.setCardElevation(2 * density);
+        card.setStrokeWidth((int) (1 * density));
+        card.setStrokeColor(getColor(R.color.midnight_stroke));
+        card.setCardBackgroundColor(getColor(R.color.midnight_surface));
         return card;
     }
 
@@ -711,12 +808,14 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = new TextView(this);
         tvTitle.setText(getString(R.string.request_created_title, selectedBg));
         tvTitle.setTextSize(16);
-        tvTitle.setTextColor(Color.parseColor("#C62828"));
+        tvTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+        tvTitle.setTextColor(getColor(R.color.blood_coral));
 
         TextView tvDesc = new TextView(this);
         tvDesc.setText(getString(R.string.request_created_hospital, hospitalDetails));
         tvDesc.setTextSize(13);
-        tvDesc.setTextColor(Color.parseColor("#616161"));
+        tvDesc.setTextColor(getColor(R.color.text_secondary));
+        tvDesc.setPadding(0, 4, 0, 8);
 
         cardContent.addView(tvTitle);
         cardContent.addView(tvDesc);

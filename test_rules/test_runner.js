@@ -463,6 +463,14 @@ async function runTests() {
       registeredAt: 3000
     };
 
+    await test('Donor CAN check/read their own camp registration before it exists (pre-registration check)', async () => {
+      await assertSucceeds(donorAlice.collection('campRegistrations').doc(regId).get());
+    });
+
+    await test('Donor Bob CANNOT check/read Alice non-existent camp registration', async () => {
+      await assertFails(donorBob.collection('campRegistrations').doc(regId).get());
+    });
+
     await test('Donor can register for an existing PUBLISHED camp', async () => {
       await assertSucceeds(donorAlice.collection('campRegistrations').doc(regId).set(validRegistration));
     });

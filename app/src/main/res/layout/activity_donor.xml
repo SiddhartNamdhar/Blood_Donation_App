@@ -5,111 +5,192 @@
     android:id="@+id/coordinatorLayoutDonor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_screen_gradient"
     android:fitsSystemWindows="true">
 
     <!-- MaterialToolbar & AppBarLayout -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/midnight_bg"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarDonor"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/pastel_red"
+            android:background="@color/midnight_surface"
             app:title="@string/donor_portal_title"
-            app:titleTextColor="@android:color/white" />
+            app:titleTextColor="@color/text_primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
+        android:id="@+id/scrollDonorPortal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="12dp"
+        android:fillViewport="true"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <LinearLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 1. Hero Donor Identity Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                app:cardCornerRadius="@dimen/radius_lg"
+                app:cardElevation="@dimen/elevation_md"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#4DFF5252"
+                app:cardBackgroundColor="@color/midnight_surface"
+                android:layout_marginBottom="16dp">
 
-                <!-- Compact Welcome Card -->
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E0E0E0"
-                    android:layout_marginBottom="12dp">
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_hero_card_gradient"
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="12dp">
+                        android:gravity="center_vertical">
 
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:src="@drawable/ic_donor_heart"
-                            android:contentDescription="@string/role_donor" />
+                        <!-- Avatar Badge -->
+                        <FrameLayout
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/bg_card_midnight"
+                            android:padding="6dp">
 
+                            <ImageView
+                                android:layout_width="34dp"
+                                android:layout_height="34dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_blood_drop_pulse"
+                                android:contentDescription="@string/role_donor" />
+
+                        </FrameLayout>
+
+                        <!-- Identity Info -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginStart="12dp">
+                            android:layout_marginStart="16dp">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="DONOR PASS"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.08"
+                                    android:textColor="@color/blood_coral" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="• VERIFIED"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.08"
+                                    android:textColor="@color/status_cleared"
+                                    android:layout_marginStart="4dp" />
+
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/tvDonorWelcome"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/donor_welcome"
-                                android:textSize="16sp"
+                                android:textSize="19sp"
                                 android:textStyle="bold"
-                                android:textColor="#212121" />
+                                android:textColor="@color/text_primary"
+                                android:layout_marginTop="2dp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/donor_welcome_desc"
                                 android:textSize="12sp"
-                                android:textColor="#757575"
-                                android:layout_marginTop="2dp" />
+                                android:textColor="@color/text_secondary"
+                                android:layout_marginTop="3dp" />
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                <!-- Medical Screening & Eligibility Status Card -->
-                <com.google.android.material.card.MaterialCardView
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. Medical Clearance & Eligibility Status Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="@dimen/elevation_sm"
+                app:strokeWidth="@dimen/card_stroke_width"
+                app:strokeColor="@color/midnight_stroke"
+                app:cardBackgroundColor="@color/midnight_surface"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E0E0E0"
-                    android:layout_marginBottom="12dp">
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/donor_status_title"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#C62828"
-                            android:layout_marginBottom="6dp" />
+                            android:textColor="@color/text_primary" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_shield_check"
+                            android:contentDescription="Status" />
+
+                    </LinearLayout>
+
+                    <!-- Status Display Pill -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_midnight"
+                        android:padding="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/tvScreeningStatus"
@@ -117,105 +198,163 @@
                             android:layout_height="wrap_content"
                             android:text="@string/status_pending_screening"
                             android:textSize="14sp"
-                            android:textColor="#E65100"
+                            android:textColor="@color/status_pending"
                             android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvScreeningNotice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/screening_notice"
-                            android:textSize="12sp"
-                            android:textColor="#616161"
-                            android:layout_marginTop="4dp" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/switchNotifications"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_notification_alerts"
-                            android:textSize="13sp"
-                            android:textColor="#424242"
-                            android:layout_marginTop="10dp" />
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:id="@+id/tvScreeningNotice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/screening_notice"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginTop="8dp" />
 
-                <!-- Dynamic Camp Calendar Card -->
-                <com.google.android.material.card.MaterialCardView
+                    <!-- Notification Switch -->
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchNotifications"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_notification_alerts"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        app:thumbTint="@color/blood_primary"
+                        app:trackTint="@color/midnight_surface_elevated"
+                        android:layout_marginTop="14dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 3. Dynamic Camp Calendar Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="@dimen/elevation_sm"
+                app:strokeWidth="@dimen/card_stroke_width"
+                app:strokeColor="@color/midnight_stroke"
+                app:cardBackgroundColor="@color/midnight_surface"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E0E0E0"
-                    android:layout_marginBottom="12dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/calendar_camp_title"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#C62828"
-                            android:layout_marginBottom="4dp" />
+                            android:textColor="@color/text_primary" />
 
-                        <CalendarView
-                            android:id="@+id/calendarViewCamps"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:theme="@style/Theme.BloodBank" />
-
-                        <TextView
-                            android:id="@+id/tvCampScheduleInfo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/calendar_select_notice"
-                            android:textSize="13sp"
-                            android:textColor="#C62828"
-                            android:textStyle="bold"
-                            android:background="#FFEBEE"
-                            android:padding="10dp"
-                            android:layout_marginTop="4dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnRegisterCamp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_register_camp"
-                            android:visibility="gone"
-                            android:layout_marginTop="8dp"
-                            app:cornerRadius="8dp" />
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_calendar_event"
+                            android:contentDescription="Calendar" />
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                    <CalendarView
+                        android:id="@+id/calendarViewCamps"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:theme="@style/Theme.BloodBank" />
 
-                <!-- Past Donation Stats & History Header -->
+                    <!-- Schedule Info Banner -->
+                    <TextView
+                        android:id="@+id/tvCampScheduleInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/calendar_select_notice"
+                        android:textSize="13sp"
+                        android:textColor="@color/blood_coral"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_card_midnight"
+                        android:padding="12dp"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Camp Registration Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRegisterCamp"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:text="@string/btn_register_camp"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.03"
+                        android:textColor="@color/text_on_crimson"
+                        app:backgroundTint="@color/blood_primary"
+                        app:cornerRadius="@dimen/radius_sm"
+                        android:visibility="gone"
+                        android:layout_marginTop="12dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 4. Past Donation Stats & History Header -->
+            <LinearLayout
+                android:id="@+id/layoutDonorAnalyticsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:layout_marginBottom="12dp">
+
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tvDonorHistoryTitle"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="@string/donor_history_title"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#212121"
-                    android:layout_marginBottom="8dp" />
+                    android:textColor="@color/text_primary" />
 
-                <!-- Dynamic Past Donation History Container -->
-                <LinearLayout
-                    android:id="@+id/containerDonorHistory"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
+                <ImageView
+                    android:id="@+id/imgDonorAnalytics"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="2dp"
+                    android:src="@drawable/ic_analytics_graph"
+                    android:contentDescription="@string/label_donation_analytics"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
 
             </LinearLayout>
+
+            <!-- Dynamic Past Donation History Container -->
+            <LinearLayout
+                android:id="@+id/containerDonorHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical" />
+
+        </LinearLayout>
 
     </ScrollView>
 

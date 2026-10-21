@@ -123,4 +123,16 @@
     <string name="profile_not_provided">Not provided</string>
     <string name="toast_profile_load_failed">Failed to load profile: %1$s</string>
     <string name="dialog_logout_confirm">Are you sure you want to log out?</string>
+
+    <!-- Analytics & Registration Strings -->
+    <string name="label_donation_analytics">Donation Analytics</string>
+    <string name="error_registration_failed">Registration could not be completed. Please try again.</string>
+    <string name="error_registration_check_failed">Unable to verify registration status. Please try again.</string>
+    <string name="dialog_analytics_title">Donor Impact &amp; Analytics</string>
+    <string name="analytics_total_donations">Lifetime Donations</string>
+    <string name="analytics_lives_saved">Estimated Lives Saved</string>
+    <string name="analytics_volume_donated">Total Volume Donated</string>
+    <string name="analytics_last_donation">Most Recent Donation</string>
+    <string name="analytics_avg_hb">Average Hemoglobin</string>
+    <string name="analytics_impact_summary">Every blood donation saves up to 3 lives. Thank you for your selfless commitment to saving lives!</string>
 </resources>

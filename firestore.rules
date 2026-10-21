@@ -200,7 +200,11 @@ service cloud.firestore {
     // Key format: {campId}_{donorUid}
     // =========================================================================
     match /campRegistrations/{registrationId} {
-      allow read: if isAuthenticated() && (resource.data.donorUid == request.auth.uid || isStaff());
+      allow read: if isAuthenticated() && (
+        isStaff() ||
+        (resource != null && resource.data.donorUid == request.auth.uid) ||
+        (resource == null && registrationId.matches('^[a-zA-Z0-9_-]+_' + request.auth.uid + '$'))
+      );
 
       allow create: if isAuthenticated()
         && request.resource.data.donorUid == request.auth.uid

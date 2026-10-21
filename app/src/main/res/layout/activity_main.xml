@@ -5,535 +5,870 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_screen_gradient"
     android:fitsSystemWindows="true">
 
     <!-- MaterialToolbar & AppBarLayout -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/midnight_bg"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/pastel_red"
+            android:background="@color/midnight_surface"
             app:title="@string/toolbar_title"
-            app:titleTextColor="@android:color/white"
-            app:subtitleTextColor="@android:color/white"
-            app:navigationIconTint="@android:color/white" />
+            app:titleTextColor="@color/text_primary"
+            app:subtitleTextColor="@color/text_secondary"
+            app:navigationIconTint="@color/text_primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Main Content Area -->
     <FrameLayout
+        android:id="@+id/frameMainContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="56dp"
+        android:layout_marginBottom="60dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <!-- 1. DONATION LAYOUT (Default Tab) -->
-            <LinearLayout
-                android:id="@+id/layoutDonation"
+        <!-- ==================== 1. DONATION LAYOUT (Default Tab) ==================== -->
+        <LinearLayout
+            android:id="@+id/layoutDonation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <ScrollView
+                android:id="@+id/scrollDonation"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="visible">
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fillViewport="true"
+                android:isScrollContainer="true">
 
-                <!-- Camp Banner ImageView -->
-                <ImageView
-                    android:id="@+id/imgCampBanner"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_camp_banner"
-                    android:contentDescription="@string/camp_banner_description"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="#FFEBEE" />
-
-                <!-- Form MaterialCardView -->
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E0E0E0">
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <!-- Camp Banner Container with Badge -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="124dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        app:cardCornerRadius="@dimen/radius_md"
+                        app:cardElevation="@dimen/elevation_sm"
+                        app:strokeWidth="@dimen/card_stroke_width"
+                        app:strokeColor="@color/midnight_stroke"
+                        app:cardBackgroundColor="@color/midnight_surface">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <ImageView
+                                android:id="@+id/imgCampBanner"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_camp_banner"
+                                android:contentDescription="@string/camp_banner_description"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:background="@color/midnight_surface_elevated" />
+
+                            <!-- Overlay Gradient & Hint -->
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="#66000000" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|end"
+                                android:layout_margin="10dp"
+                                android:background="@drawable/bg_pill_status_cleared"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="10dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Tap to change banner"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/status_cleared" />
+
+                            </LinearLayout>
+
+                        </FrameLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Form MaterialCardView -->
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-
-                        <!-- Donor ID (EDITABLE) -->
-                        <EditText
-                            android:id="@+id/etDonorId"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/donor_id_hint"
-                            android:inputType="number"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
-
-                        <!-- Name (NON-EDITABLE / AUTO-FILLED) -->
-                        <EditText
-                            android:id="@+id/etDonorName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/hint_donor_name_autofill"
-                            android:inputType="textPersonName"
-                            android:focusable="false"
-                            android:clickable="false"
-                            android:cursorVisible="false"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
-
-                        <!-- Age (NON-EDITABLE / AUTO-FILLED) -->
-                        <EditText
-                            android:id="@+id/etDonorAge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/hint_donor_age_autofill"
-                            android:inputType="number"
-                            android:focusable="false"
-                            android:clickable="false"
-                            android:cursorVisible="false"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
-
-                        <!-- Blood Group (NON-EDITABLE / AUTO-FILLED) -->
-                        <EditText
-                            android:id="@+id/etBloodGroupPlaceholder"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/hint_blood_group_autofill"
-                            android:inputType="text"
-                            android:focusable="false"
-                            android:clickable="false"
-                            android:cursorVisible="false"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
-
-                        <!-- Blood Donated (EDITABLE) -->
-                        <EditText
-                            android:id="@+id/etBloodDonated"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/hint_blood_donated"
-                            android:inputType="text"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
-
-                        <!-- Hemoglobin Value (EDITABLE) -->
-                        <EditText
-                            android:id="@+id/etHemoglobin"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/hint_hemoglobin"
-                            android:inputType="numberDecimal"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
-
-                        <!-- Submit Donation Record Button -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAdd"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_submit_donation"
-                            android:layout_marginTop="8dp"
-                            app:cornerRadius="8dp" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Section Title & Filter Chips -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/donations_recorded_today"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp" />
-
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupFilter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipAll"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/filter_all"
-                            android:checked="true" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipAPos"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_a_pos" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipANeg"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_a_neg" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipBPos"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_b_pos" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipBNeg"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_b_neg" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipOPos"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_o_pos" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipONeg"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_o_neg" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipABPos"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_ab_pos" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipABNeg"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/bg_ab_neg" />
-
-                    </com.google.android.material.chip.ChipGroup>
-
-                </HorizontalScrollView>
-
-                <!-- Donors ListView -->
-                <ListView
-                    android:id="@+id/lvDonors"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:divider="@null"
-                    android:dividerHeight="0dp" />
-
-            </LinearLayout>
-
-            <!-- 2. REQUEST LAYOUT -->
-            <RelativeLayout
-                android:id="@+id/layoutRequest"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:padding="16dp">
-
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <!-- Ongoing Requests Container -->
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/title_ongoing_requests"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#C62828"
-                            android:layout_marginBottom="12dp" />
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="12dp"
+                        app:cardCornerRadius="@dimen/radius_lg"
+                        app:cardElevation="@dimen/elevation_md"
+                        app:strokeWidth="@dimen/card_stroke_width"
+                        app:strokeColor="@color/midnight_stroke"
+                        app:cardBackgroundColor="@color/midnight_surface">
 
                         <LinearLayout
-                            android:id="@+id/containerOngoingRequests"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                            <!-- Initial Ongoing Request Card 1 -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/cardRequest1"
+                            <!-- Card Header -->
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                app:cardCornerRadius="12dp"
-                                app:cardElevation="3dp"
-                                app:strokeWidth="1dp"
-                                app:strokeColor="#E0E0E0"
-                                android:layout_marginBottom="12dp">
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="14dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Record Blood Donation"
+                                    android:textSize="17sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_primary" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ID LOOKUP"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.06"
+                                    android:textColor="@color/blood_coral"
+                                    android:background="@drawable/bg_pill_status_pending"
+                                    android:paddingStart="8dp"
+                                    android:paddingEnd="8dp"
+                                    android:paddingTop="3dp"
+                                    android:paddingBottom="3dp" />
+
+                            </LinearLayout>
+
+                            <!-- Donor ID (EDITABLE) -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="10dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
+                                android:hint="@string/donor_id_hint"
+                                app:hintTextColor="@color/blood_primary_light">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etDonorId"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:importantForAutofill="no"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Auto-filled Donor Info Container -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:background="@drawable/bg_card_midnight"
+                                android:padding="12dp"
+                                android:layout_marginBottom="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Donor Details (Verified Auto-fill)"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.04"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginBottom="6dp" />
+
+                                <!-- Name (AUTO-FILLED) -->
+                                <EditText
+                                    android:id="@+id/etDonorName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/hint_donor_name_autofill"
+                                    android:inputType="textPersonName"
+                                    android:focusable="false"
+                                    android:clickable="false"
+                                    android:cursorVisible="false"
+                                    android:importantForAutofill="no"
+                                    android:textColor="@color/text_primary"
+                                    android:textColorHint="@color/text_tertiary"
+                                    android:background="@android:color/transparent"
+                                    android:minHeight="38dp" />
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:background="@color/midnight_stroke"
+                                    android:layout_marginTop="2dp"
+                                    android:layout_marginBottom="6dp" />
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:padding="16dp">
+                                    android:orientation="horizontal">
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
+                                    <!-- Age (AUTO-FILLED) -->
+                                    <EditText
+                                        android:id="@+id/etDonorAge"
+                                        android:layout_width="0dp"
                                         android:layout_height="wrap_content"
-                                        android:text="@string/request_1_title"
-                                        android:textSize="16sp"
+                                        android:layout_weight="1"
+                                        android:hint="@string/hint_donor_age_autofill"
+                                        android:inputType="number"
+                                        android:focusable="false"
+                                        android:clickable="false"
+                                        android:cursorVisible="false"
+                                        android:importantForAutofill="no"
+                                        android:textColor="@color/text_primary"
+                                        android:textColorHint="@color/text_tertiary"
+                                        android:background="@android:color/transparent"
+                                        android:minHeight="38dp" />
+
+                                    <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="match_parent"
+                                        android:background="@color/midnight_stroke"
+                                        android:layout_marginStart="8dp"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <!-- Blood Group (AUTO-FILLED) -->
+                                    <EditText
+                                        android:id="@+id/etBloodGroupPlaceholder"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:hint="@string/hint_blood_group_autofill"
+                                        android:inputType="text"
+                                        android:focusable="false"
+                                        android:clickable="false"
+                                        android:cursorVisible="false"
+                                        android:importantForAutofill="no"
+                                        android:textColor="@color/blood_coral"
                                         android:textStyle="bold"
-                                        android:textColor="#C62828" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/request_1_desc"
-                                        android:textSize="13sp"
-                                        android:textColor="#616161"
-                                        android:layout_marginTop="4dp" />
-
-                                    <com.google.android.material.button.MaterialButton
-                                        android:id="@+id/btnCompleteReq1"
-                                        style="?attr/materialButtonOutlinedStyle"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/btn_mark_completed"
-                                        android:textSize="13sp"
-                                        android:layout_marginTop="8dp" />
+                                        android:textColorHint="@color/text_tertiary"
+                                        android:background="@android:color/transparent"
+                                        android:minHeight="38dp" />
 
                                 </LinearLayout>
 
-                            </com.google.android.material.card.MaterialCardView>
+                            </LinearLayout>
 
-                            <!-- Initial Ongoing Request Card 2 -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/cardRequest2"
+                            <!-- Blood Donated Volume (EDITABLE) -->
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                app:cardCornerRadius="12dp"
-                                app:cardElevation="3dp"
-                                app:strokeWidth="1dp"
-                                app:strokeColor="#E0E0E0"
-                                android:layout_marginBottom="12dp">
+                                android:layout_marginBottom="10dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
+                                android:hint="@string/hint_blood_donated"
+                                app:hintTextColor="@color/blood_primary_light">
 
-                                <LinearLayout
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etBloodDonated"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:padding="16dp">
+                                    android:inputType="number"
+                                    android:importantForAutofill="no"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/request_2_title"
-                                        android:textSize="16sp"
-                                        android:textStyle="bold"
-                                        android:textColor="#C62828" />
+                            </com.google.android.material.textfield.TextInputLayout>
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/request_2_desc"
-                                        android:textSize="13sp"
-                                        android:textColor="#616161"
-                                        android:layout_marginTop="4dp" />
+                            <!-- Hemoglobin Value (EDITABLE) -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
+                                android:hint="@string/hint_hemoglobin"
+                                app:hintTextColor="@color/blood_primary_light">
 
-                                    <com.google.android.material.button.MaterialButton
-                                        android:id="@+id/btnCompleteReq2"
-                                        style="?attr/materialButtonOutlinedStyle"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/btn_mark_completed"
-                                        android:textSize="13sp"
-                                        android:layout_marginTop="8dp" />
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etHemoglobin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="numberDecimal"
+                                    android:importantForAutofill="no"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
 
-                                </LinearLayout>
+                            </com.google.android.material.textfield.TextInputLayout>
 
-                            </com.google.android.material.card.MaterialCardView>
+                            <!-- Submit Donation Record Button -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnAdd"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/button_height"
+                                android:text="@string/btn_submit_donation"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.04"
+                                android:textColor="@color/text_on_crimson"
+                                app:backgroundTint="@color/blood_primary"
+                                app:cornerRadius="@dimen/radius_sm" />
 
                         </LinearLayout>
 
-                        <!-- Completed Requests Container -->
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Section Title & Filter Chips -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="6dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/donations_recorded_today"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="FILTER"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/blood_coral" />
+
+                    </LinearLayout>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:layout_marginBottom="8dp">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupFilter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipAll"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/filter_all"
+                                android:checked="true"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipAPos"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_a_pos"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipANeg"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_a_neg"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBPos"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_b_pos"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBNeg"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_b_neg"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipOPos"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_o_pos"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipONeg"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_o_neg"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipABPos"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_ab_pos"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipABNeg"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/bg_ab_neg"
+                                app:chipBackgroundColor="@color/midnight_surface_elevated"
+                                android:textColor="@color/text_primary" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                    </HorizontalScrollView>
+
+                    <!-- Donors ListView Container -->
+                    <ListView
+                        android:id="@+id/lvDonors"
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp"
+                        android:nestedScrollingEnabled="true"
+                        android:divider="@null"
+                        android:dividerHeight="0dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginBottom="16dp" />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+        <!-- ==================== 2. REQUEST LAYOUT ==================== -->
+        <RelativeLayout
+            android:id="@+id/layoutRequest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Ongoing Requests Header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/title_ongoing_requests"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="URGENT"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/blood_coral"
+                            android:background="@drawable/bg_pill_status_deferred"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/containerOngoingRequests"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical">
+
+                        <!-- Initial Ongoing Request Card 1 -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardRequest1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="@dimen/radius_md"
+                            app:cardElevation="@dimen/elevation_sm"
+                            app:strokeWidth="@dimen/card_stroke_width"
+                            app:strokeColor="@color/midnight_stroke"
+                            app:cardBackgroundColor="@color/midnight_surface"
+                            android:layout_marginBottom="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/request_1_title"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/blood_coral" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/request_1_desc"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/text_secondary"
+                                    android:lineSpacingExtra="2dp"
+                                    android:layout_marginTop="6dp" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnCompleteReq1"
+                                    style="?attr/materialButtonOutlinedStyle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/btn_mark_completed"
+                                    android:textColor="@color/status_cleared"
+                                    app:strokeColor="@color/status_cleared_stroke"
+                                    android:textSize="13sp"
+                                    android:layout_marginTop="10dp" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Initial Ongoing Request Card 2 -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardRequest2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="@dimen/radius_md"
+                            app:cardElevation="@dimen/elevation_sm"
+                            app:strokeWidth="@dimen/card_stroke_width"
+                            app:strokeColor="@color/midnight_stroke"
+                            app:cardBackgroundColor="@color/midnight_surface"
+                            android:layout_marginBottom="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/request_2_title"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/blood_coral" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/request_2_desc"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/text_secondary"
+                                    android:lineSpacingExtra="2dp"
+                                    android:layout_marginTop="6dp" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnCompleteReq2"
+                                    style="?attr/materialButtonOutlinedStyle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/btn_mark_completed"
+                                    android:textColor="@color/status_cleared"
+                                    app:strokeColor="@color/status_cleared_stroke"
+                                    android:textSize="13sp"
+                                    android:layout_marginTop="10dp" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </LinearLayout>
+
+                    <!-- Completed Requests Container -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="14dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/title_completed_requests"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="#2E7D32"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="12dp" />
-
-                        <LinearLayout
-                            android:id="@+id/containerCompletedRequests"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical" />
-
-                    </LinearLayout>
-
-                </ScrollView>
-
-                <!-- FloatingActionButton to Add New Blood Request -->
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabAddRequest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_margin="16dp"
-                    android:src="@drawable/ic_add_fab"
-                    android:contentDescription="@string/add_request_desc"
-                    app:tint="@android:color/white" />
-
-            </RelativeLayout>
-
-            <!-- 3. ORGANISE LAYOUT (Camps List + FAB) -->
-            <RelativeLayout
-                android:id="@+id/layoutOrganise"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:padding="16dp">
-
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <LinearLayout
-                        android:id="@+id/containerCamps"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                            android:textColor="@color/text_primary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/title_upcoming_camps"
-                            android:textSize="20sp"
+                            android:text="RESOLVED"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            android:textColor="#C62828"
-                            android:layout_marginBottom="16dp" />
-
-                        <!-- Upcoming Camp Card 1 -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="3dp"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="#E0E0E0"
-                            android:layout_marginBottom="12dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="16dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/camp_1_title"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:textColor="#212121" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/camp_1_desc"
-                                    android:textSize="13sp"
-                                    android:textColor="#616161"
-                                    android:layout_marginTop="4dp" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <!-- Upcoming Camp Card 2 -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="3dp"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="#E0E0E0"
-                            android:layout_marginBottom="12dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="16dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/camp_2_title"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold"
-                                    android:textColor="#212121" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/camp_2_desc"
-                                    android:textSize="13sp"
-                                    android:textColor="#616161"
-                                    android:layout_marginTop="4dp" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
+                            android:textColor="@color/status_cleared"
+                            android:background="@drawable/bg_pill_status_cleared"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp" />
 
                     </LinearLayout>
 
-                </ScrollView>
+                    <LinearLayout
+                        android:id="@+id/containerCompletedRequests"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical" />
 
-                <!-- FloatingActionButton to Organise New Camp -->
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabOrganiseCamp"
-                    android:layout_width="wrap_content"
+                </LinearLayout>
+
+            </ScrollView>
+
+            <!-- FloatingActionButton to Add New Blood Request -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddRequest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_add_fab"
+                android:contentDescription="@string/add_request_desc"
+                app:backgroundTint="@color/blood_primary"
+                app:tint="@android:color/white" />
+
+        </RelativeLayout>
+
+        <!-- ==================== 3. ORGANISE LAYOUT (Camps List + FAB) ==================== -->
+        <RelativeLayout
+            android:id="@+id/layoutOrganise"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:id="@+id/containerCamps"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_margin="16dp"
-                    android:src="@drawable/ic_add_fab"
-                    android:contentDescription="@string/fab_organise_desc"
-                    app:tint="@android:color/white" />
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical">
 
-            </RelativeLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
 
-        </FrameLayout>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/title_upcoming_camps"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_calendar_event"
+                            android:contentDescription="Camps" />
+
+                    </LinearLayout>
+
+                    <!-- Upcoming Camp Card 1 -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="@dimen/radius_md"
+                        app:cardElevation="@dimen/elevation_sm"
+                        app:strokeWidth="@dimen/card_stroke_width"
+                        app:strokeColor="@color/midnight_stroke"
+                        app:cardBackgroundColor="@color/midnight_surface"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/camp_1_title"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/camp_1_desc"
+                                android:textSize="13sp"
+                                android:textColor="@color/text_secondary"
+                                android:lineSpacingExtra="3dp"
+                                android:layout_marginTop="6dp" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Upcoming Camp Card 2 -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="@dimen/radius_md"
+                        app:cardElevation="@dimen/elevation_sm"
+                        app:strokeWidth="@dimen/card_stroke_width"
+                        app:strokeColor="@color/midnight_stroke"
+                        app:cardBackgroundColor="@color/midnight_surface"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/camp_2_title"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/camp_2_desc"
+                                android:textSize="13sp"
+                                android:textColor="@color/text_secondary"
+                                android:lineSpacingExtra="3dp"
+                                android:layout_marginTop="6dp" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <!-- FloatingActionButton to Organise New Camp -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabOrganiseCamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_add_fab"
+                android:contentDescription="@string/fab_organise_desc"
+                app:backgroundTint="@color/blood_primary"
+                app:tint="@android:color/white" />
+
+        </RelativeLayout>
+
+    </FrameLayout>
 
     <!-- BottomNavigationView -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -542,7 +877,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:menu="@menu/menu_bottom_nav"
-        android:background="#FFFFFF"
+        android:background="@color/midnight_surface"
+        app:itemIconTint="@color/nav_item_tint_selector"
+        app:itemTextColor="@color/nav_item_tint_selector"
         app:elevation="8dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

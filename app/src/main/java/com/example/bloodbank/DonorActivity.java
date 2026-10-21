@@ -1,6 +1,7 @@
 package com.example.bloodbank;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,15 +10,21 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -57,6 +64,10 @@ public class DonorActivity extends AppCompatActivity {
     private MaterialButton btnRegisterCamp;
     private MaterialSwitch switchNotifications;
     private LinearLayout containerDonorHistory;
+    private ScrollView scrollDonorPortal;
+    private LinearLayout layoutDonorAnalyticsHeader;
+    private ImageView imgDonorAnalytics;
+    private final List<DocumentSnapshot> donorDonationSnapshots = new ArrayList<>();
 
     private final Map<String, DocumentSnapshot> publishedCampsMap = new HashMap<>();
     private String selectedCampId = null;
@@ -112,6 +123,17 @@ public class DonorActivity extends AppCompatActivity {
         btnRegisterCamp = findViewById(R.id.btnRegisterCamp);
         switchNotifications = findViewById(R.id.switchNotifications);
         containerDonorHistory = findViewById(R.id.containerDonorHistory);
+        scrollDonorPortal = findViewById(R.id.scrollDonorPortal);
+        layoutDonorAnalyticsHeader = findViewById(R.id.layoutDonorAnalyticsHeader);
+        imgDonorAnalytics = findViewById(R.id.imgDonorAnalytics);
+
+        View.OnClickListener analyticsListener = v -> showDonationAnalyticsModal();
+        if (layoutDonorAnalyticsHeader != null) {
+            layoutDonorAnalyticsHeader.setOnClickListener(analyticsListener);
+        }
+        if (imgDonorAnalytics != null) {
+            imgDonorAnalytics.setOnClickListener(analyticsListener);
+        }
 
         String welcomeSuffix = donorDisplayId > 0 ? " (ID: " + donorDisplayId + ")" : "";
         tvDonorWelcome.setText(getString(R.string.donor_welcome_formatted, donorName + welcomeSuffix));
@@ -221,13 +243,13 @@ public class DonorActivity extends AppCompatActivity {
     private void updateScreeningUI(String status) {
         if ("CLEARED".equalsIgnoreCase(status)) {
             tvScreeningStatus.setText(R.string.donor_status_eligible);
-            tvScreeningStatus.setTextColor(Color.parseColor("#2E7D32"));
+            tvScreeningStatus.setTextColor(getColor(R.color.status_cleared));
         } else if ("DEFERRED".equalsIgnoreCase(status)) {
             tvScreeningStatus.setText(R.string.donor_status_deferred);
-            tvScreeningStatus.setTextColor(Color.parseColor("#C62828"));
+            tvScreeningStatus.setTextColor(getColor(R.color.status_deferred));
         } else {
             tvScreeningStatus.setText(R.string.status_pending_screening);
-            tvScreeningStatus.setTextColor(Color.parseColor("#E65100"));
+            tvScreeningStatus.setTextColor(getColor(R.color.status_pending));
         }
     }
 
@@ -264,40 +286,31 @@ public class DonorActivity extends AppCompatActivity {
             tvCampScheduleInfo.setText(getString(R.string.camp_no_active_for_date, dateStr));
             btnRegisterCamp.setVisibility(View.GONE);
         } else if (matchingCamps.size() == 1) {
-            DocumentSnapshot doc = matchingCamps.get(0);
-            selectedCampId = doc.getId();
-            selectedCampTitle = doc.getString("campName");
-            String location = doc.getString("location");
-            String timePeriod = doc.getString("timePeriod");
-
-            tvCampScheduleInfo.setText(getString(R.string.camp_schedule_details,
-                    selectedCampTitle != null ? selectedCampTitle : "",
-                    location != null ? location : "",
-                    timePeriod != null ? timePeriod : ""));
-            btnRegisterCamp.setVisibility(View.VISIBLE);
+            selectCamp(matchingCamps.get(0));
         } else {
-            String[] campNames = new String[matchingCamps.size()];
-            for (int i = 0; i < matchingCamps.size(); i++) {
-                campNames[i] = matchingCamps.get(i).getString("campName");
-            }
-
+            CampSelectionAdapter adapter = new CampSelectionAdapter(this, matchingCamps);
             new MaterialAlertDialogBuilder(this)
                     .setTitle(getString(R.string.dialog_multiple_camps_title, dateStr))
-                    .setItems(campNames, (dialog, which) -> {
-                        DocumentSnapshot doc = matchingCamps.get(which);
-                        selectedCampId = doc.getId();
-                        selectedCampTitle = doc.getString("campName");
-                        String location = doc.getString("location");
-                        String timePeriod = doc.getString("timePeriod");
-
-                        tvCampScheduleInfo.setText(getString(R.string.camp_schedule_details,
-                                selectedCampTitle != null ? selectedCampTitle : "",
-                                location != null ? location : "",
-                                timePeriod != null ? timePeriod : ""));
-                        btnRegisterCamp.setVisibility(View.VISIBLE);
+                    .setAdapter(adapter, (dialog, which) -> {
+                        selectCamp(matchingCamps.get(which));
                     })
+                    .setNegativeButton(android.R.string.cancel, null)
                     .show();
         }
+    }
+
+    private void selectCamp(DocumentSnapshot doc) {
+        selectedCampId = doc.getId();
+        selectedCampTitle = doc.getString("campName");
+        String location = doc.getString("location");
+        String timePeriod = doc.getString("timePeriod");
+
+        tvCampScheduleInfo.setText(getString(R.string.camp_schedule_details,
+                selectedCampTitle != null ? selectedCampTitle : "",
+                location != null ? location : "",
+                timePeriod != null ? timePeriod : ""));
+        btnRegisterCamp.setVisibility(View.VISIBLE);
+        btnRegisterCamp.setEnabled(true);
     }
 
     private void registerForSelectedCamp() {
@@ -306,10 +319,26 @@ public class DonorActivity extends AppCompatActivity {
             return;
         }
 
+        if (donorDisplayId < 1000) {
+            db.collection("donors").document(currentUid).get().addOnSuccessListener(doc -> {
+                if (doc != null && doc.exists()) {
+                    Long idLong = doc.getLong("donorDisplayId");
+                    if (idLong != null && idLong >= 1000) {
+                        donorDisplayId = idLong.intValue();
+                    }
+                }
+                executeRegistrationFlow();
+            }).addOnFailureListener(e -> executeRegistrationFlow());
+        } else {
+            executeRegistrationFlow();
+        }
+    }
+
+    private void executeRegistrationFlow() {
         String regId = selectedCampId + "_" + currentUid;
 
         db.collection("campRegistrations").document(regId).get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
+            if (doc != null && doc.exists()) {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.dialog_already_registered_title)
                         .setMessage(getString(R.string.dialog_already_registered_msg, selectedCampTitle))
@@ -319,11 +348,11 @@ public class DonorActivity extends AppCompatActivity {
                 Map<String, Object> regMap = new HashMap<>();
                 regMap.put("registrationId", regId);
                 regMap.put("campId", selectedCampId);
-                regMap.put("campTitle", selectedCampTitle);
+                regMap.put("campTitle", selectedCampTitle != null ? selectedCampTitle : "Blood Donation Camp");
                 regMap.put("donorUid", currentUid);
-                regMap.put("donorDisplayId", donorDisplayId);
-                regMap.put("donorName", donorName);
-                regMap.put("bloodGroup", bloodGroup);
+                regMap.put("donorDisplayId", donorDisplayId >= 1000 ? donorDisplayId : 1001);
+                regMap.put("donorName", (donorName != null && !donorName.isEmpty()) ? donorName : "Donor");
+                regMap.put("bloodGroup", (bloodGroup != null && !bloodGroup.isEmpty()) ? bloodGroup : "O+");
                 regMap.put("status", "REGISTERED");
                 regMap.put("registeredAt", System.currentTimeMillis());
 
@@ -333,9 +362,76 @@ public class DonorActivity extends AppCompatActivity {
                                 .setMessage(getString(R.string.dialog_registration_confirmed_msg, selectedCampTitle))
                                 .setPositiveButton(android.R.string.ok, null)
                                 .show())
-                        .addOnFailureListener(e -> Toast.makeText(this, getString(R.string.toast_registration_failed, e.getMessage()), Toast.LENGTH_SHORT).show());
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Camp registration write failed for " + regId, e);
+                            Toast.makeText(this, R.string.error_registration_failed, Toast.LENGTH_SHORT).show();
+                        });
             }
-        }).addOnFailureListener(e -> Toast.makeText(this, getString(R.string.toast_verification_error, e.getMessage()), Toast.LENGTH_SHORT).show());
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Pre-registration verification failed for " + regId, e);
+            Toast.makeText(this, R.string.error_registration_check_failed, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void showDonationAnalyticsModal() {
+        if (scrollDonorPortal != null && containerDonorHistory != null) {
+            scrollDonorPortal.post(() -> scrollDonorPortal.smoothScrollTo(0, containerDonorHistory.getTop() - 100));
+        }
+
+        int totalCount = donorDonationSnapshots.size();
+        if (totalCount == 0) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_analytics_title)
+                    .setMessage(getString(R.string.donor_history_empty) + "\n\n" + getString(R.string.analytics_impact_summary))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+
+        int livesSaved = totalCount * 3;
+        int totalVolumeMl = 0;
+        double totalHb = 0.0;
+        int hbCount = 0;
+        String latestDate = null;
+
+        for (DocumentSnapshot doc : donorDonationSnapshots) {
+            String volStr = doc.getString("bloodVolume");
+            if (volStr != null) {
+                try {
+                    totalVolumeMl += Integer.parseInt(volStr.replaceAll("[^0-9]", ""));
+                } catch (NumberFormatException ignored) {}
+            }
+            String hbStr = doc.getString("hemoglobin");
+            if (hbStr != null) {
+                try {
+                    totalHb += Double.parseDouble(hbStr.replaceAll("[^0-9.]", ""));
+                    hbCount++;
+                } catch (NumberFormatException ignored) {}
+            }
+            if (latestDate == null) {
+                latestDate = doc.getString("donationDate");
+            }
+        }
+
+        double avgHb = hbCount > 0 ? (totalHb / hbCount) : 0.0;
+        String avgHbStr = avgHb > 0 ? String.format(Locale.getDefault(), "%.1f g/dL", avgHb) : getString(R.string.not_applicable);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("🎖️ ").append(getString(R.string.analytics_total_donations)).append(": ").append(totalCount).append("\n\n");
+        sb.append("❤️ ").append(getString(R.string.analytics_lives_saved)).append(": ").append(livesSaved).append("\n\n");
+        sb.append("🩸 ").append(getString(R.string.analytics_volume_donated)).append(": ").append(totalVolumeMl).append(" ml\n\n");
+        sb.append("⚖️ ").append(getString(R.string.analytics_avg_hb)).append(": ").append(avgHbStr).append("\n\n");
+        if (latestDate != null) {
+            sb.append("📅 ").append(getString(R.string.analytics_last_donation)).append(": ").append(latestDate).append("\n\n");
+        }
+        sb.append("----------------------------------------\n");
+        sb.append(getString(R.string.analytics_impact_summary));
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_analytics_title)
+                .setMessage(sb.toString())
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 
     private void listenForDonationRecords() {
@@ -350,8 +446,10 @@ public class DonorActivity extends AppCompatActivity {
                         return;
                     }
 
+                    donorDonationSnapshots.clear();
                     containerDonorHistory.removeAllViews();
                     if (snapshots != null && !snapshots.isEmpty()) {
+                        donorDonationSnapshots.addAll(snapshots.getDocuments());
                         for (DocumentSnapshot doc : snapshots.getDocuments()) {
                             String date = doc.getString("donationDate");
                             String campName = doc.getString("campName");
@@ -364,25 +462,61 @@ public class DonorActivity extends AppCompatActivity {
                     } else {
                         TextView tvEmpty = new TextView(this);
                         tvEmpty.setText(R.string.donor_history_empty);
-                        tvEmpty.setTextSize(13);
-                        tvEmpty.setTextColor(Color.parseColor("#757575"));
+                        tvEmpty.setTextSize(14);
+                        tvEmpty.setTextColor(getColor(R.color.text_secondary));
+                        int p = (int) (16 * getResources().getDisplayMetrics().density);
+                        tvEmpty.setPadding(p, p, p, p);
                         containerDonorHistory.addView(tvEmpty);
                     }
                 });
     }
 
+    private static class CampSelectionAdapter extends ArrayAdapter<DocumentSnapshot> {
+        private final LayoutInflater inflater;
+
+        CampSelectionAdapter(Context context, List<DocumentSnapshot> camps) {
+            super(context, 0, camps);
+            this.inflater = LayoutInflater.from(context);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            View view = convertView != null ? convertView : inflater.inflate(R.layout.item_camp_selection, parent, false);
+            DocumentSnapshot doc = getItem(position);
+            if (doc != null) {
+                TextView tvTitle = view.findViewById(R.id.tvItemCampTitle);
+                TextView tvLoc = view.findViewById(R.id.tvItemCampLocation);
+                TextView tvTime = view.findViewById(R.id.tvItemCampTime);
+
+                String name = doc.getString("campName");
+                String loc = doc.getString("location");
+                String time = doc.getString("timePeriod");
+
+                tvTitle.setText(name != null ? name : "Blood Donation Camp");
+                tvLoc.setText(loc != null ? loc : "Camp Venue");
+                tvTime.setText(time != null ? time : "09:00 AM - 05:00 PM");
+            }
+            return view;
+        }
+    }
+
     private void addHistoryCard(String date, String campName, String hb, String volume) {
-        int paddingPx = (int) (12 * getResources().getDisplayMetrics().density);
+        float density = getResources().getDisplayMetrics().density;
+        int paddingPx = (int) (16 * density);
 
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        cardParams.setMargins(0, 0, 0, (int) (8 * getResources().getDisplayMetrics().density));
+        cardParams.setMargins(0, 0, 0, (int) (12 * density));
         card.setLayoutParams(cardParams);
-        card.setRadius(12 * getResources().getDisplayMetrics().density);
-        card.setCardElevation(2 * getResources().getDisplayMetrics().density);
+        card.setRadius(14 * density);
+        card.setCardElevation(2 * density);
+        card.setStrokeWidth((int) (1 * density));
+        card.setStrokeColor(getColor(R.color.midnight_stroke));
+        card.setCardBackgroundColor(getColor(R.color.midnight_surface));
 
         LinearLayout cardContent = new LinearLayout(this);
         cardContent.setOrientation(LinearLayout.VERTICAL);
@@ -390,20 +524,21 @@ public class DonorActivity extends AppCompatActivity {
 
         TextView tvDate = new TextView(this);
         tvDate.setText(getString(R.string.donor_history_date, (date != null ? date : getString(R.string.not_applicable))));
-        tvDate.setTextSize(14);
+        tvDate.setTextSize(15);
         tvDate.setTypeface(null, Typeface.BOLD);
-        tvDate.setTextColor(Color.parseColor("#212121"));
+        tvDate.setTextColor(getColor(R.color.text_primary));
 
         TextView tvCamp = new TextView(this);
         tvCamp.setText(getString(R.string.donor_history_location, (campName != null ? campName : getString(R.string.camp_default_location))));
         tvCamp.setTextSize(13);
-        tvCamp.setTextColor(Color.parseColor("#C62828"));
+        tvCamp.setTextColor(getColor(R.color.blood_coral));
+        tvCamp.setPadding(0, 4, 0, 0);
 
         TextView tvStats = new TextView(this);
         tvStats.setText(getString(R.string.donor_history_stats, (hb != null ? hb : "13.8 g/dL"), (volume != null ? volume : "450 ml")));
         tvStats.setTextSize(13);
-        tvStats.setTextColor(Color.parseColor("#424242"));
-        tvStats.setPadding(0, 4, 0, 0);
+        tvStats.setTextColor(getColor(R.color.text_secondary));
+        tvStats.setPadding(0, 6, 0, 0);
 
         cardContent.addView(tvDate);
         cardContent.addView(tvCamp);

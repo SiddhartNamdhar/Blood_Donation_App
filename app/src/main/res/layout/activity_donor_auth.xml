@@ -5,6 +5,7 @@
     android:id="@+id/coordinatorLayoutDonorAuth"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_screen_gradient"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -12,20 +13,22 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- MaterialToolbar -->
+        <!-- Modern Dark MaterialToolbar -->
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/midnight_bg"
+            app:elevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbarDonorAuth"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/pastel_red"
+                android:background="@color/midnight_surface"
                 app:title="@string/donor_auth_title"
-                app:titleTextColor="@android:color/white"
+                app:titleTextColor="@color/text_primary"
                 app:navigationIcon="@drawable/ic_clear"
-                app:navigationIconTint="@android:color/white" />
+                app:navigationIconTint="@color/text_primary" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -33,42 +36,91 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="16dp">
+            android:fillViewport="true"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
 
+                <!-- Main Auth Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="3dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E0E0E0">
+                    app:cardCornerRadius="@dimen/radius_lg"
+                    app:cardElevation="@dimen/elevation_md"
+                    app:strokeWidth="@dimen/card_stroke_width"
+                    app:strokeColor="@color/midnight_stroke"
+                    app:cardBackgroundColor="@color/midnight_surface">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:animateLayoutChanges="true"
+                        android:padding="24dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <!-- Header with Heart Pulse Badge -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/role_donor"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#C62828"
-                            android:layout_marginBottom="12dp" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="20dp">
+
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/bg_card_midnight"
+                                android:padding="6dp">
+
+                                <ImageView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_heart_pulse"
+                                    android:contentDescription="@string/role_donor" />
+
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:layout_marginStart="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Donor Portal"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/text_primary" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Lifesaver Community"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginTop="2dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
 
                         <!-- Toggle Group for Mode Selection -->
                         <com.google.android.material.button.MaterialButtonToggleGroup
                             android:id="@+id/toggleGroupDonorMode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="20dp"
                             app:singleSelection="true"
                             app:selectionRequired="true"
                             app:checkedButton="@id/btnModeDonorSignIn">
@@ -77,49 +129,91 @@
                                 android:id="@+id/btnModeDonorSignIn"
                                 style="?attr/materialButtonOutlinedStyle"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="48dp"
                                 android:layout_weight="1"
-                                android:text="@string/mode_sign_in" />
+                                android:text="@string/mode_sign_in"
+                                android:textColor="@color/text_primary"
+                                app:strokeColor="@color/midnight_stroke"
+                                app:cornerRadius="@dimen/radius_sm" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnModeDonorRegister"
                                 style="?attr/materialButtonOutlinedStyle"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="48dp"
                                 android:layout_weight="1"
-                                android:text="@string/mode_register" />
+                                android:text="@string/mode_register"
+                                android:textColor="@color/text_primary"
+                                app:strokeColor="@color/midnight_stroke"
+                                app:cornerRadius="@dimen/radius_sm" />
 
                         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                        <EditText
-                            android:id="@+id/etDonorAuthEmail"
+                        <!-- Email Input Field -->
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            app:boxBackgroundMode="filled"
+                            app:boxBackgroundColor="@color/midnight_surface_elevated"
+                            app:boxStrokeColor="@color/blood_primary"
+                            app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                            app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                            app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                            app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
                             android:hint="@string/hint_email"
-                            android:inputType="textEmailAddress"
-                            android:autofillHints="emailAddress"
-                            android:minHeight="48dp" />
+                            app:hintTextColor="@color/blood_primary_light">
 
-                        <EditText
-                            android:id="@+id/etDonorAuthPassword"
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etDonorAuthEmail"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textEmailAddress"
+                                android:autofillHints="emailAddress"
+                                android:textColor="@color/text_primary"
+                                android:minHeight="@dimen/input_min_height" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Password Input Field -->
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            app:boxBackgroundMode="filled"
+                            app:boxBackgroundColor="@color/midnight_surface_elevated"
+                            app:boxStrokeColor="@color/blood_primary"
+                            app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                            app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                            app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                            app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
+                            app:endIconMode="password_toggle"
+                            app:endIconTint="@color/text_secondary"
                             android:hint="@string/hint_password"
-                            android:inputType="textPassword"
-                            android:importantForAutofill="no"
-                            android:minHeight="48dp" />
+                            app:hintTextColor="@color/blood_primary_light">
 
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etDonorAuthPassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword"
+                                android:importantForAutofill="no"
+                                android:textColor="@color/text_primary"
+                                android:minHeight="@dimen/input_min_height" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Forgot Password Button -->
                         <TextView
                             android:id="@+id/tvDonorForgotPassword"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
-                            android:layout_marginTop="4dp"
-                            android:layout_marginBottom="8dp"
-                            android:padding="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="12dp"
+                            android:padding="6dp"
                             android:text="@string/forgot_password"
-                            android:textColor="@color/pastel_red"
-                            android:textSize="14sp"
+                            android:textColor="@color/blood_coral"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             android:clickable="true"
                             android:focusable="true"
@@ -133,136 +227,252 @@
                             android:orientation="vertical"
                             android:visibility="gone">
 
-                            <EditText
-                                android:id="@+id/etDonorAuthConfirmPassword"
+                            <!-- Confirm Password -->
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
+                                app:endIconMode="password_toggle"
+                                app:endIconTint="@color/text_secondary"
                                 android:hint="@string/hint_confirm_password"
-                                android:inputType="textPassword"
-                                android:importantForAutofill="no"
-                                android:minHeight="48dp" />
+                                app:hintTextColor="@color/blood_primary_light">
 
-                            <EditText
-                                android:id="@+id/etDonorAuthName"
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etDonorAuthConfirmPassword"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPassword"
+                                    android:importantForAutofill="no"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Full Name -->
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
                                 android:hint="@string/name_hint"
-                                android:inputType="textPersonName"
-                                android:autofillHints="name"
-                                android:minHeight="48dp" />
+                                app:hintTextColor="@color/blood_primary_light">
 
-                            <EditText
-                                android:id="@+id/etDonorAuthMobile"
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etDonorAuthName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPersonName"
+                                    android:autofillHints="name"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Mobile Phone -->
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
                                 android:hint="@string/hint_mobile"
-                                android:inputType="phone"
-                                android:autofillHints="phone"
-                                android:minHeight="48dp" />
+                                app:hintTextColor="@color/blood_primary_light">
 
-                            <EditText
-                                android:id="@+id/etDonorAuthAge"
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etDonorAuthMobile"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="phone"
+                                    android:autofillHints="phone"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Age -->
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:boxBackgroundMode="filled"
+                                app:boxBackgroundColor="@color/midnight_surface_elevated"
+                                app:boxStrokeColor="@color/blood_primary"
+                                app:boxCornerRadiusTopStart="@dimen/radius_sm"
+                                app:boxCornerRadiusTopEnd="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomStart="@dimen/radius_sm"
+                                app:boxCornerRadiusBottomEnd="@dimen/radius_sm"
                                 android:hint="@string/hint_age"
-                                android:inputType="number"
-                                android:importantForAutofill="no"
-                                android:minHeight="48dp" />
+                                app:hintTextColor="@color/blood_primary_light">
 
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etDonorAuthAge"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:importantForAutofill="no"
+                                    android:textColor="@color/text_primary"
+                                    android:minHeight="@dimen/input_min_height" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Gender Spinner Container -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginTop="4dp">
+                                android:orientation="vertical"
+                                android:background="@drawable/bg_card_midnight"
+                                android:padding="12dp"
+                                android:layout_marginBottom="12dp">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/hint_gender"
-                                    android:textSize="16sp"
-                                    android:textColor="@android:color/black"
-                                    android:layout_marginEnd="12dp" />
+                                    android:textSize="12sp"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginBottom="4dp" />
 
                                 <Spinner
                                     android:id="@+id/spDonorAuthGender"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:importantForAutofill="no"
-                                    android:minHeight="48dp" />
+                                    android:minHeight="44dp" />
+
                             </LinearLayout>
 
+                            <!-- Blood Group Spinner Container -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginTop="4dp">
+                                android:orientation="vertical"
+                                android:background="@drawable/bg_card_midnight"
+                                android:padding="12dp"
+                                android:layout_marginBottom="12dp">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/blood_group_label"
-                                    android:textSize="16sp"
-                                    android:textColor="@android:color/black"
-                                    android:layout_marginEnd="12dp" />
+                                    android:textSize="12sp"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginBottom="4dp" />
 
                                 <Spinner
                                     android:id="@+id/spDonorAuthBloodGroup"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:importantForAutofill="no"
-                                    android:minHeight="48dp" />
+                                    android:minHeight="44dp" />
+
                             </LinearLayout>
 
                         </LinearLayout>
 
+                        <!-- Primary Action Button (Sign In / Register) -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDonorLogin"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/button_height"
                             android:text="@string/mode_sign_in"
                             android:textSize="16sp"
-                            android:layout_marginTop="16dp"
-                            app:cornerRadius="8dp" />
+                            android:textStyle="bold"
+                            android:letterSpacing="0.04"
+                            android:textColor="@color/text_on_crimson"
+                            app:backgroundTint="@color/blood_primary"
+                            app:cornerRadius="@dimen/radius_sm"
+                            android:layout_marginTop="8dp" />
 
+                        <!-- Retry Profile Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDonorRetryProfile"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/button_height"
                             android:text="@string/btn_retry_profile"
-                            android:layout_marginTop="8dp"
+                            android:textColor="@color/status_pending"
+                            app:strokeColor="@color/status_pending_stroke"
+                            android:layout_marginTop="10dp"
                             android:visibility="gone"
-                            app:cornerRadius="8dp" />
+                            app:cornerRadius="@dimen/radius_sm" />
 
+                        <!-- Loading Indicator -->
                         <ProgressBar
                             android:id="@+id/pbDonorAuth"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginTop="8dp"
+                            android:indeterminateTint="@color/blood_coral"
+                            android:layout_marginTop="12dp"
                             android:visibility="gone" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <!-- Divider -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/or_divider"
-                            android:layout_gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="#757575"
-                            android:layout_marginTop="12dp"
-                            android:layout_marginBottom="12dp" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="20dp">
 
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1"
+                                android:background="@color/midnight_stroke" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/or_divider"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.05"
+                                android:textColor="@color/text_tertiary"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="14dp" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1"
+                                android:background="@color/midnight_stroke" />
+
+                        </LinearLayout>
+
+                        <!-- Google Sign-In Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDonorGoogleLogin"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/button_height"
                             android:text="@string/btn_google_login"
+                            android:textColor="@color/google_btn_text"
+                            android:textSize="15sp"
                             app:icon="@drawable/ic_google"
+                            app:iconTint="@null"
                             app:iconGravity="textStart"
-                            app:cornerRadius="8dp" />
+                            app:strokeColor="@color/google_btn_stroke"
+                            app:cornerRadius="@dimen/radius_sm"
+                            app:backgroundTint="@color/google_btn_bg" />
 
                     </LinearLayout>
 

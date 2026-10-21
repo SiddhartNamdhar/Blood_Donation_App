@@ -121,12 +121,12 @@ public class DonorAuthActivity extends AppCompatActivity {
         tvDonorForgotPassword = findViewById(R.id.tvDonorForgotPassword);
         MaterialButtonToggleGroup toggleGroupDonorMode = findViewById(R.id.toggleGroupDonorMode);
 
-        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genders);
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, R.layout.item_spinner, genders);
+        genderAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         spDonorAuthGender.setAdapter(genderAdapter);
 
-        ArrayAdapter<String> bloodAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, bloodGroups);
-        bloodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> bloodAdapter = new ArrayAdapter<>(this, R.layout.item_spinner, bloodGroups);
+        bloodAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         spDonorAuthBloodGroup.setAdapter(bloodAdapter);
 
         // Switch between Sign-In and Register modes

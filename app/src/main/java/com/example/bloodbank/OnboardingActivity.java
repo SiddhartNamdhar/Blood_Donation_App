@@ -17,6 +17,18 @@ public class OnboardingActivity extends AppCompatActivity {
         MaterialCardView cardStaff = findViewById(R.id.cardStaff);
         MaterialCardView cardDonor = findViewById(R.id.cardDonor);
 
+        if (cardStaff != null) {
+            cardStaff.setAlpha(0f);
+            cardStaff.setTranslationY(40f);
+            cardStaff.animate().alpha(1f).translationY(0f).setDuration(450).setStartDelay(100).start();
+        }
+
+        if (cardDonor != null) {
+            cardDonor.setAlpha(0f);
+            cardDonor.setTranslationY(40f);
+            cardDonor.animate().alpha(1f).translationY(0f).setDuration(450).setStartDelay(200).start();
+        }
+
         cardStaff.setOnClickListener(v -> {
             Intent intent = new Intent(OnboardingActivity.this, StaffAuthActivity.class);
             startActivity(intent);

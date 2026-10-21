@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <!-- Blood Drop Silhouette -->
+  <path
+      android:fillColor="#E53935"
+      android:pathData="M24,4 C24,4 10,19.2 10,29.5 C10,37.5 16.3,44 24,44 C31.7,44 38,37.5 38,29.5 C38,19.2 24,4 24,4 Z"/>
+  <!-- Internal Heartbeat Pulse Line -->
+  <path
+      android:strokeColor="#FFFFFF"
+      android:strokeWidth="2.5"
+      android:strokeLineCap="round"
+      android:strokeLineJoin="round"
+      android:fillColor="#00000000"
+      android:pathData="M16,30 L20,30 L22,24 L25,35 L28,27 L30,30 L32,30"/>
+</vector>

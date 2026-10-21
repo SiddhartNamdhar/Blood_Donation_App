@@ -114,8 +114,8 @@ public class StaffAuthActivity extends AppCompatActivity {
         tvStaffForgotPassword = findViewById(R.id.tvStaffForgotPassword);
         MaterialButtonToggleGroup toggleGroupStaffMode = findViewById(R.id.toggleGroupStaffMode);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genders);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_spinner, genders);
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         spStaffGender.setAdapter(adapter);
 
         toggleGroupStaffMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {

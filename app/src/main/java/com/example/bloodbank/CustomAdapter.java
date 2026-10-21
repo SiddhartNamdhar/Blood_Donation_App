@@ -52,7 +52,7 @@ public class CustomAdapter extends BaseAdapter {
         tvName.setText(nameList.get(position));
         String details = ageList.get(position) + " | " + bloodGroupList.get(position);
         tvDetails.setText(details);
-        imgIcon.setImageResource(R.drawable.ic_blood_donor);
+        imgIcon.setImageResource(R.drawable.ic_blood_drop_pulse);
 
         return itemView;
     }

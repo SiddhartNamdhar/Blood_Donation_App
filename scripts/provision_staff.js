@@ -1,27 +1,3 @@
-/**
- * Firebase Admin SDK Provisioning Script for BloodBank Staff
- *
- * PURPOSE:
- * Securely assigns the 'role: "Staff"' Firebase Custom Claim to authorized staff accounts.
- * Android clients cannot set custom claims directly. This script must be executed
- * by an authorized administrator using service account credentials.
- *
- * PREREQUISITES:
- * 1. Node.js installed (v16+).
- * 2. Download your service account key from:
- *    Firebase Console -> Project Settings -> Service accounts -> "Generate new private key".
- * 3. Save the JSON file as 'serviceAccountKey.json' in this scripts/ directory
- *    (or set the GOOGLE_APPLICATION_CREDENTIALS environment variable).
- * 4. Run 'npm install firebase-admin' inside the scripts/ directory.
- *
- * USAGE:
- * node provision_staff.js <UID_OR_EMAIL> [optional: organisation_name] [optional: full_name]
- *
- * EXAMPLES:
- * node provision_staff.js staff@bloodbank.org "City Blood Center" "Dr. Jane Doe"
- * node provision_staff.js Wk28PqLxM9aBcDeFgHiJkLmNoP12
- */
-
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const { getFirestore } = require('firebase-admin/firestore');

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen theme for API 31+ (Android 12+) -->
+    <style name="Theme.BloodBank.Splash" parent="Theme.BloodBank">
+        <item name="android:windowBackground">@color/midnight_bg</item>
+        <item name="android:windowSplashScreenBackground">@color/midnight_bg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+    </style>
+</resources>

@@ -1,23 +1,66 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.BloodBank" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">#FAFAFA</item>
+        <item name="android:windowBackground">@color/midnight_bg</item>
+        <item name="android:colorBackground">@color/midnight_bg</item>
+        <item name="colorSurface">@color/midnight_surface</item>
+        <item name="colorSurfaceContainer">@color/midnight_surface_elevated</item>
+        <item name="colorPrimary">@color/blood_primary</item>
+        <item name="colorPrimaryInverse">@color/blood_primary_light</item>
+        <item name="colorSecondary">@color/blood_coral</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnPrimary">@color/text_on_crimson</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="materialAlertDialogTheme">@style/MaterialDialogCardTheme</item>
+        <item name="bottomNavigationStyle">@style/Widget.BloodBank.BottomNavigationView</item>
     </style>
 
     <style name="Theme.BloodBank" parent="Base.Theme.BloodBank" />
 
     <!-- Theme for SplashActivity -->
     <style name="Theme.BloodBank.Splash" parent="Theme.BloodBank">
-        <item name="android:windowBackground">#FFF5F5</item>
+        <item name="android:windowBackground">@color/midnight_bg</item>
     </style>
 
     <!-- Modern Floating Card Style for Dialogs -->
     <style name="MaterialDialogCardTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="shapeAppearanceOverlay">@style/DialogCardShape</item>
+        <item name="colorSurface">@color/midnight_surface</item>
+        <item name="android:backgroundTint">@color/midnight_surface</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.BloodBank.DialogButton.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.BloodBank.DialogButton.Negative</item>
     </style>
 
     <style name="DialogCardShape" parent="">
         <item name="cornerSize">20dp</item>
+    </style>
+
+    <!-- Dialog Button Styles -->
+    <style name="Widget.BloodBank.DialogButton.Positive" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/blood_primary_light</item>
+        <item name="rippleColor">#33FF5252</item>
+    </style>
+
+    <style name="Widget.BloodBank.DialogButton.Negative" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="rippleColor">#338B949E</item>
+    </style>
+
+    <!-- Bottom Navigation Style -->
+    <style name="Widget.BloodBank.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/midnight_surface</item>
+        <item name="itemIconTint">@color/nav_item_tint_selector</item>
+        <item name="itemTextColor">@color/nav_item_tint_selector</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.BloodBank.BottomNavActiveIndicator</item>
+        <item name="elevation">8dp</item>
+    </style>
+
+    <style name="Widget.BloodBank.BottomNavActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">#33E53935</item>
+        <item name="android:width">48dp</item>
+        <item name="android:height">28dp</item>
     </style>
 </resources>
